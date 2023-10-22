@@ -1,3 +1,3 @@
 # Mobile
 
-This is the flutter app (iOS, Android)
+This is the Flutter app (iOS, Android)
