@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ams/components/background.dart';
-import 'package:ams/screens/login/login.dart';
-import 'package:ams/constants/appColors.dart';
-import 'package:ams/constants/appFontsSize.dart';
+import 'package:ams/components/Background.dart';
+import 'package:ams/screens/login/Login.dart';
+import 'package:ams/constants/AppColors.dart';
+import 'package:ams/constants/AppFontsSize.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -67,7 +67,9 @@ class WelcomeScreen extends StatelessWidget {
                   child: Text(
                     "Let's Go!",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: appFontsSize.buttonFontSize),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: appFontsSize.buttonFontSize),
                   ),
                 ),
               ),
@@ -78,4 +80,3 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 }
-

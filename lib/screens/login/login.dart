@@ -2,14 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:ams/components/background.dart';
 import 'package:ams/components/customWidget.dart';
 import 'package:ams/constants/appColors.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ams/providers/authController.dart';
+import 'dart:ui' as ui;
 
-class LoginScreen extends StatelessWidget {
+final authControllerProvider = Provider((ref) => AuthController());
+
+class LoginScreen extends HookConsumerWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  useProvider(Provider<AuthController> authControllerProvider) {}
+
   @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+  Widget build(BuildContext context, WidgetRef ref) {
+    
+  
+    final ValueNotifier<bool> isLoading = useState(false);
+
+    ui.Size size = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Background(
@@ -49,33 +61,53 @@ class LoginScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CustomWidgets.buildTextField(
-                            "Email",
-                            Icons.email,
-                            emailController,
+                          CustomWidgets.buildEmailTextField(
+                            emailController
                           ),
                           SizedBox(height: 24.0),
-                          CustomWidgets.buildPasswordTextField(passwordController),
+                          CustomWidgets.buildPasswordTextField(
+                              passwordController),
                           SizedBox(height: 24.0),
                           ElevatedButton(
-                            onPressed: () {
-                              print(
-                                'Email: ${emailController.text}, Password: ${passwordController.text}',
-                              );
+                            onPressed:  isLoading.value ? null : () async {
+                              
+                              final ValueNotifier<String> email = emailController.text != ""
+                                  ? ValueNotifier<String>(emailController.text)
+                                  : ValueNotifier<String>('');
+                              final ValueNotifier<String> password = passwordController.text != ""
+                                  ? ValueNotifier<String>(passwordController.text)
+                                  : ValueNotifier<String>('');
+
+                              isLoading.value = true;
+                              
+                              print(await ref.read(authControllerProvider).signIn(
+                                  email.value, password.value
+                              ));
+                              
+                              isLoading.value = false;
                             },
+                            
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(80.0),
                               ),
                               backgroundColor: AppColors.buttonColor,
-                              fixedSize: Size(size.width * 0.3, size.width * 0.125),
+                              fixedSize:
+                                  ui.Size(size.width * 0.3, size.width * 0.125),
                             ),
-                            child: Text(
+                            child: isLoading.value ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.textColor),
+                              ),
+                            ) 
+                            : const Text(
                               'Sign In',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: size.width * 0.04,
+                                fontSize: 16.0,
                                 color: AppColors.textColor,
                               ),
                             ),
@@ -92,4 +124,6 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  
 }

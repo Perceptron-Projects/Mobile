@@ -1,8 +1,13 @@
-import 'package:ams/screens/welcome/welcome.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ams/screens/welcome/Welcome.dart';
 
 void main() {
-  runApp(AMSAPP());
+
+  runApp(
+    ProviderScope(
+      child: AMSAPP(),
+    ));
 }
 
 class AMSAPP extends StatelessWidget {
@@ -10,14 +15,14 @@ class AMSAPP extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Login',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Color(0xFF2661FA),
-        scaffoldBackgroundColor: Colors.white,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: WelcomeScreen(),
-    );
+        title: 'Flutter Login',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: Color(0xFF2661FA),
+          scaffoldBackgroundColor: Colors.white,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: WelcomeScreen(),
+      );
   }
 }
