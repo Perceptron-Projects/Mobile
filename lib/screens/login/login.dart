@@ -4,8 +4,9 @@ import 'package:ams/components/customWidget.dart';
 import 'package:ams/constants/appColors.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ams/providers/authController.dart';
+import 'package:ams/providers/AuthController.dart';
 import 'dart:ui' as ui;
+import 'package:ams/screens/markAttendance/markAttendance.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -80,11 +81,24 @@ class LoginScreen extends HookConsumerWidget {
 
                               isLoading.value = true;
                               
-                              print(await ref.read(authControllerProvider).signIn(
-                                  email.value, password.value
-                              ));
+                              // print(await ref.read(authControllerProvider).signIn(
+                              //     email.value, password.value
+                              // ));
                               
-                              isLoading.value = false;
+                                try {
+                                    await ref
+                                        .read(authControllerProvider)
+                                        .signIn(email.value, password.value);
+                                    
+                                    Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => MarkAttendanceScreen()),
+                                  );
+                                  } catch (e) {
+                                    print(e);
+                                  } finally {
+                                    isLoading.value = false;
+                                  }
+                                
                             },
                             
                             style: ElevatedButton.styleFrom(
