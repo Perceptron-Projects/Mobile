@@ -6,7 +6,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/providers/AuthController.dart';
 import 'dart:ui' as ui;
-import 'package:ams/screens/markAttendance/markAttendance.dart';
+import 'package:ams/screens/home/Home.dart';
+import 'package:ams/screens/attendance/MarkAttendance.dart';
+import 'package:ams/screens/forgetPassword/ForgetPassword.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -18,8 +20,8 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
-  
+
+
     final ValueNotifier<bool> isLoading = useState(false);
 
     ui.Size size = MediaQuery.of(context).size;
@@ -68,10 +70,33 @@ class LoginScreen extends HookConsumerWidget {
                           SizedBox(height: 24.0),
                           CustomWidgets.buildPasswordTextField(
                               passwordController),
+                          Container(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: (
+
+                                  ) {
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ForgetPasswordScreen(),
+                                  ),
+                                );
+
+                              },
+                              child: Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                           SizedBox(height: 24.0),
                           ElevatedButton(
                             onPressed:  isLoading.value ? null : () async {
-                              
+
                               final ValueNotifier<String> email = emailController.text != ""
                                   ? ValueNotifier<String>(emailController.text)
                                   : ValueNotifier<String>('');
@@ -80,27 +105,27 @@ class LoginScreen extends HookConsumerWidget {
                                   : ValueNotifier<String>('');
 
                               isLoading.value = true;
-                              
+
                               // print(await ref.read(authControllerProvider).signIn(
                               //     email.value, password.value
                               // ));
-                              
+
                                 try {
                                     await ref
                                         .read(authControllerProvider)
                                         .signIn(email.value, password.value);
-                                    
+
                                     Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => MarkAttendanceScreen()),
+                                    MaterialPageRoute(builder: (context) => HomePageScreen()),
                                   );
                                   } catch (e) {
                                     print(e);
                                   } finally {
                                     isLoading.value = false;
                                   }
-                                
+
                             },
-                            
+
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(80.0),
@@ -115,7 +140,7 @@ class LoginScreen extends HookConsumerWidget {
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(AppColors.textColor),
                               ),
-                            ) 
+                            )
                             : const Text(
                               'Sign In',
                               textAlign: TextAlign.center,
@@ -139,5 +164,5 @@ class LoginScreen extends HookConsumerWidget {
     );
   }
 
-  
+
 }

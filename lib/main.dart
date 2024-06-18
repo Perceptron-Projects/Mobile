@@ -23,6 +23,7 @@ class AMSAPP extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: WelcomeScreen(),
+
       );
   }
 }

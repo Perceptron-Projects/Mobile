@@ -1,52 +1,76 @@
-import 'package:flutter/material.dart';
-import 'package:ams/constants/AppColors.dart';
-import 'package:ams/constants/AppFontsSize.dart';
+import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class LocationSelection extends StatefulWidget {
-  @override
-  LocationSelectionState createState() => LocationSelectionState();
-}
+final locationControllerProvider = Provider((ref) => LocationController());
 
-class LocationSelectionState extends State<LocationSelection> {
-  String selectedLocation = 'Office'; // Default selection
+class LocationController {
+  final storage = FlutterSecureStorage();
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Radio<String>(
-          value: 'Office',
-          groupValue: selectedLocation,
-          onChanged: (value) {
-            setState(() {
-              selectedLocation = value!;
-            });
-          },
-          activeColor: Colors.green, // Change color when selected
+  Future<bool> isWithinCompanyRadius() async {
+    try {
+      Position position = await _determinePosition();
+      print(position.longitude);
+      print(position.latitude);
+      String? companyId = await storage.read(key: 'companyId');
+      print(companyId);
+      String? token = await storage.read(key: 'token');
+
+      if (companyId == null || token == null) {
+        throw Exception('Company ID or token not found');
+      }
+
+      final response = await http.get(
+        Uri.parse(
+          'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com/api/users/isWithinRadius/$companyId?userLat=${position.latitude}&userLon=${position.longitude}',
         ),
-        Text('Office',
-            style: TextStyle(
-                color: AppColors.primaryTextColor,
-                fontSize: appFontsSize.bodyFontSize,
-                fontWeight: FontWeight.bold)),
-        SizedBox(width: 20),
-        Radio<String>(
-          value: 'Home',
-          groupValue: selectedLocation,
-          onChanged: (value) {
-            setState(() {
-              selectedLocation = value!;
-            });
-          },
-          activeColor: Colors.green, // Change color when selected
-        ),
-        Text('Home',
-            style: TextStyle(
-                color: AppColors.primaryTextColor,
-                fontSize: appFontsSize.bodyFontSize,
-                fontWeight: FontWeight.bold)),
-      ],
-    );
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return true;
+      } else {
+        throw Exception('Failed to check location');
+      }
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> resetLocationPermissions() async {
+    await Geolocator.openAppSettings();
+    await Geolocator.openLocationSettings();
   }
 }

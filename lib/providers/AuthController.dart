@@ -6,8 +6,7 @@ import 'dart:convert';
 final authControllerProvider = Provider((ref) => AuthController());
 
 class AuthController {
-  static const String baseUrl =
-      'https://ld60zjeyel.execute-api.us-east-1.amazonaws.com';
+  static const String baseUrl = 'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<Map<String, dynamic>> signIn(String email, String password) async {
@@ -25,17 +24,20 @@ class AuthController {
         }),
       );
 
-      print(response.body);
-      print(response.statusCode);
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final token = responseData['token'];
-
-        // Save token securely
-        await _secureStorage.write(key: 'token', value: token);
-
         final String userId = responseData['userId'];
+        final String companyId = responseData['companyId'];
+        final List<String> roles = List<String>.from(responseData['role']);
+        final int expiresIn = responseData['expiresIn'];
+
+        // Save each value securely
+        await _secureStorage.write(key: 'token', value: token);
+        await _secureStorage.write(key: 'userId', value: userId);
+        await _secureStorage.write(key: 'companyId', value: companyId);
+        await _secureStorage.write(key: 'roles', value: jsonEncode(roles));
+        await _secureStorage.write(key: 'expiresIn', value: expiresIn.toString());
 
         // Perform authorized request after successful sign-in
         final userData = await authorizedRequest('GET', '/api/users/$userId');
@@ -48,8 +50,7 @@ class AuthController {
     }
   }
 
-  Future<Map<String, dynamic>> authorizedRequest(
-      String method, String endPoint) async {
+  Future<Map<String, dynamic>> authorizedRequest(String method, String endPoint) async {
     final token = await getAuthToken();
 
     if (token == null) {
@@ -67,8 +68,7 @@ class AuthController {
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
-      throw Exception(
-          'Failed to make authorized request: ${response.statusCode}');
+      throw Exception('Failed to make authorized request: ${response.statusCode}');
     }
   }
 
@@ -79,12 +79,40 @@ class AuthController {
   }
 
   Future<void> signOut() async {
-    // Remove token from secure storage
-    await _secureStorage.delete(key: 'token');
+    // Remove all stored values from secure storage
+    await _secureStorage.deleteAll();
   }
 
   Future<String?> getAuthToken() async {
     // Retrieve token from secure storage
     return _secureStorage.read(key: 'token');
+  }
+
+  Future<String?> getUserId() async {
+    // Retrieve userId from secure storage
+    return _secureStorage.read(key: 'userId');
+  }
+
+  Future<String?> getCompanyId() async {
+    // Retrieve companyId from secure storage
+    return _secureStorage.read(key: 'companyId');
+  }
+
+  Future<List<String>?> getRoles() async {
+    // Retrieve roles from secure storage
+    String? rolesString = await _secureStorage.read(key: 'roles');
+    if (rolesString != null) {
+      return List<String>.from(jsonDecode(rolesString));
+    }
+    return null;
+  }
+
+  Future<int?> getExpiresIn() async {
+    // Retrieve expiresIn from secure storage
+    String? expiresInString = await _secureStorage.read(key: 'expiresIn');
+    if (expiresInString != null) {
+      return int.tryParse(expiresInString);
+    }
+    return null;
   }
 }
