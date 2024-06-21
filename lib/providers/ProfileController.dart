@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ams/api/ApiClient.dart';
 
 final profileControllerProvider = Provider((ref) => ProfileController());
 
 class ProfileController {
-  static const String baseUrl = 'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com';
+
 
   final storage = FlutterSecureStorage();
 
@@ -20,7 +21,7 @@ class ProfileController {
 
     final response = await http.get(
       Uri.parse(
-        '$baseUrl/api/users/$userId',
+        '${ApiClient.baseUrl}/api/users/$userId',
       ),
       headers: {
         'Authorization': 'Bearer $token',
@@ -44,7 +45,7 @@ class ProfileController {
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/users/$userId'),
+      Uri.parse('${ApiClient.baseUrl}/api/users/$userId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

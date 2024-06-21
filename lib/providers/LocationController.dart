@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ams/api/ApiClient.dart';
 
 final locationControllerProvider = Provider((ref) => LocationController());
 
@@ -24,7 +25,7 @@ class LocationController {
 
       final response = await http.get(
         Uri.parse(
-          'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com/api/users/isWithinRadius/$companyId?userLat=${position.latitude}&userLon=${position.longitude}',
+          '${ApiClient.baseUrl}/api/users/isWithinRadius/$companyId?userLat=${position.latitude}&userLon=${position.longitude}',
         ),
         headers: {
           'Authorization': 'Bearer $token',

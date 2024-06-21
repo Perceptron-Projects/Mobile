@@ -1,8 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:ams/api/ApiClient.dart';
 
 class ForgetPasswordController {
-  static const String _baseUrl = 'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com/api/users';
+  static const String _baseUrl = '${ApiClient.baseUrl}/api/users';
 
   static Future<String?> sendOtp(String email) async {
     final response = await http.post(

@@ -58,7 +58,8 @@ class ProfileScreen extends HookConsumerWidget {
     }
 
     final profileData = profile.value ?? {};
-    final name = profileData['name'] ?? 'N/A';
+    final firstName = profileData['firstName'] ?? 'N/A';
+    final lastName = profileData['lastName'] ?? 'N/A';
     final userId = profileData['userId']?.toString() ?? 'N/A';
     final birthday = profileData['birthday'] ?? 'N/A';
     final joinedDate = profileData['joinday'] ?? 'N/A';
@@ -106,7 +107,7 @@ class ProfileScreen extends HookConsumerWidget {
             SizedBox(height: 16),
             ProfileInfoItem(
               label: 'Name',
-              value: name,
+              value: firstName+" "+lastName,
             ),
             ProfileInfoItem(
               label: 'User ID',

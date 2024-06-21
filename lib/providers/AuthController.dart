@@ -1,19 +1,20 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:convert';
+import 'package:ams/api/ApiClient.dart';
+import 'package:http/http.dart' as http;
+
 
 final authControllerProvider = Provider((ref) => AuthController());
 
 class AuthController {
-  static const String baseUrl = 'https://bnmpm8x1s8.execute-api.us-east-1.amazonaws.com';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   Future<Map<String, dynamic>> signIn(String email, String password) async {
     await Future.delayed(const Duration(seconds: 1));
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/users/login'),
+        Uri.parse('${ApiClient.baseUrl}/api/users/login'), // Use ApiClient's baseUrl
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -50,6 +51,7 @@ class AuthController {
     }
   }
 
+
   Future<Map<String, dynamic>> authorizedRequest(String method, String endPoint) async {
     final token = await getAuthToken();
 
@@ -62,7 +64,7 @@ class AuthController {
       'Authorization': 'Bearer $token',
     };
 
-    final Uri uri = Uri.parse('$baseUrl$endPoint');
+    final Uri uri = Uri.parse('${ApiClient.baseUrl}$endPoint');
     final http.Response response = await http.get(uri, headers: headers);
 
     if (response.statusCode == 200) {
@@ -70,6 +72,31 @@ class AuthController {
     } else {
       throw Exception('Failed to make authorized request: ${response.statusCode}');
     }
+  }
+
+  Future<List<String>> getUserRoles() async {
+    String? userId = await _secureStorage.read(key: 'userId');
+    String? token = await _secureStorage.read(key: 'token');
+
+    if (userId == null || token == null) {
+      throw Exception('User ID or token not found');
+    }
+
+    final response = await http.get(
+      Uri.parse('${ApiClient.baseUrl}/api/users/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch user roles');
+    }
+
+    final data = json.decode(response.body);
+    List<String> roles = List<String>.from(data['role']);
+    return roles;
   }
 
   Future<bool> isAuthenticated() async {
@@ -91,6 +118,11 @@ class AuthController {
   Future<String?> getUserId() async {
     // Retrieve userId from secure storage
     return _secureStorage.read(key: 'userId');
+  }
+
+  Future<String?> getFirstName() async {
+    // Retrieve companyId from secure storage
+    return _secureStorage.read(key: 'firstName');
   }
 
   Future<String?> getCompanyId() async {
