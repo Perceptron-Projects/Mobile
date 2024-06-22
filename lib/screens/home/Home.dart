@@ -1,3 +1,4 @@
+import 'package:ams/screens/leave/LeaveDashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,6 +8,8 @@ import 'package:ams/providers/AuthController.dart';
 import 'package:ams/screens/profile/Profile.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/screens/attendance/AttendanceDashboard.dart';
+import 'package:ams/screens/teams/TeamsDashboard.dart';
+import 'package:ams/screens/teams/ViewTeams.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -118,21 +121,21 @@ class HomePageScreen extends HookConsumerWidget {
                       navigateToScreen,
                     ),
                     buildNavButton(
-                      'Profile',
+                      'Teams',
                       Icons.person,
-                      ProfileScreen(),
+                      TeamDashboardScreen(),
                       navigateToScreen,
                     ),
                     buildNavButton(
                       'Leaves',
                       Icons.person,
-                      ProfileScreen(),
+                      LeaveDashboardScreen(),
                       navigateToScreen,
                     ),
                     buildNavButton(
                       'Calendar',
                       Icons.person,
-                      ProfileScreen(),
+                      ViewTeamsScreen(),
                       navigateToScreen,
                     )
                   ],
