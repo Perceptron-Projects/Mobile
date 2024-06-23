@@ -87,6 +87,7 @@ flutter:
   assets:
      - assets/images/defaultProfileImage.jpg
      - assets/images/backgroundImage4.png
+     - assets/images/icon/companyLogo.png
 
 
 

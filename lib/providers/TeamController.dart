@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:ams/api/ApiClient.dart';
-import 'package:ams/models/TeamModel.dart';
+import 'package:ams/models/Team.dart';
 import 'package:ams/models/TeamMember.dart';
 
 final teamControllerProvider = Provider((ref) => TeamController());

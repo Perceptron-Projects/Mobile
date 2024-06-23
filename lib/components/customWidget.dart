@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ams/constants/AppFontsSize.dart';
 import 'package:ams/constants/AppColors.dart';
-import 'package:ams/models/TeamModel.dart';
+import 'package:ams/models/Team.dart';
 
 typedef Validator = String? Function(String?);
 

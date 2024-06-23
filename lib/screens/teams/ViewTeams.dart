@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
-import 'package:ams/models/TeamModel.dart';
-import 'package:ams/components/CustomWidget.dart';
+import 'package:ams/models/Team.dart';
+import 'package:ams/screens/teams/TeamDetails.dart';
 
 class ViewTeamsScreen extends HookConsumerWidget {
   @override
@@ -16,18 +15,8 @@ class ViewTeamsScreen extends HookConsumerWidget {
 
     useEffect(() {
       Future<void> fetchTeams() async {
-        final storage = FlutterSecureStorage();
-        String? employeeId = await storage.read(key: 'userId');
-        if (employeeId == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User ID not found')),
-          );
-          isLoading.value = false;
-          return;
-        }
-
         try {
-          teams.value = await teamController.getTeamsForEmployee(employeeId);
+          teams.value = await teamController.getAllTeams();
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to fetch teams')),
@@ -38,7 +27,7 @@ class ViewTeamsScreen extends HookConsumerWidget {
       }
 
       fetchTeams();
-      return;
+      return null;
     }, []);
 
     return Scaffold(
@@ -52,15 +41,44 @@ class ViewTeamsScreen extends HookConsumerWidget {
       ),
       body: isLoading.value
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(48.0),
-          child: Column(
-            children: teams.value.isNotEmpty
-                ? teams.value.map((team) => TeamDetailsTile(team: team)).toList()
-                : [Center(child: Text('No teams found'))],
-          ),
-        ),
+          : ListView.builder(
+        padding: const EdgeInsets.all(36.0),
+        itemCount: teams.value.length,
+        itemBuilder: (context, index) {
+          final team = teams.value[index];
+          return Card(
+            child: ListTile(
+              leading: team.teamsImage.isNotEmpty
+                  ? CircleAvatar(
+                backgroundImage: NetworkImage(team.teamsImage),
+                radius: 30,
+              )
+                  : CircleAvatar(
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.group, color: Colors.white),
+                radius: 30,
+              ),
+              title: Text(
+                team.teamName,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Project: ${team.projectName}'),
+                  Text('Supervisor: ${team.supervisor}'),
+                  Text('Start Date: ${team.startDate}'),
+                ],
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TeamDetailsScreen(teamId: team.teamId)),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }

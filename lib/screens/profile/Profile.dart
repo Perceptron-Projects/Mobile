@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/ProfileController.dart';
 import 'package:ams/screens/welcome/Welcome.dart';
-import 'package:ams/screens/editProfile/EditProfile.dart';
+import 'package:ams/screens/profile/EditProfile.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   @override
@@ -64,7 +64,7 @@ class ProfileScreen extends HookConsumerWidget {
     final birthday = profileData['birthday'] ?? 'N/A';
     final joinedDate = profileData['joinday'] ?? 'N/A';
     final email = profileData['email'] ?? 'N/A';
-    final profilePhotoUrl = profileData['profilePhotoUrl'];
+    final profilePhotoUrl = profileData['imageUrl'];
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
 
     return Scaffold(

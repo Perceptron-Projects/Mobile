@@ -3,8 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/appColors.dart';
 import 'package:ams/providers/teamController.dart';
-import 'package:ams/models/TeamModel.dart';
+import 'package:ams/models/Team.dart';
 import 'package:ams/screens/supervisor/CreateTeam.dart';
+import 'package:ams/screens/supervisor/EditTeam.dart';
 
 class TeamManagementDashboardScreen extends HookConsumerWidget {
   @override
@@ -28,6 +29,34 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
       return null;
     }, []);
 
+    void confirmDelete(BuildContext context, Team team) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Confirm Deletion'),
+            content: Text('Are you sure you want to delete the team "${team.teamName}"?'),
+            actions: [
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Delete'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await teamController.deleteTeam(team.teamId);
+                  fetchTeams();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -47,6 +76,16 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
+                  leading: team.teamsImage.isNotEmpty
+                      ? CircleAvatar(
+                    backgroundImage: NetworkImage(team.teamsImage),
+                    radius: 30,
+                  )
+                      : CircleAvatar(
+                    backgroundColor: Colors.grey,
+                    child: Icon(Icons.group, color: Colors.white),
+                    radius: 30,
+                  ),
                   title: Text(team.teamName),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,14 +100,16 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
                       IconButton(
                         icon: Icon(Icons.edit, color: Colors.blue),
                         onPressed: () {
-                          // Navigate to the team editing screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditTeamScreen(team: team)),
+                          );
                         },
                       ),
                       IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          await teamController.deleteTeam(team.teamId);
-                          fetchTeams();
+                        onPressed: () {
+                          confirmDelete(context, team);
                         },
                       ),
                     ],
@@ -79,15 +120,19 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CreateTeamScreen()),
-          );
-        },
-        child: Icon(Icons.add),
-        backgroundColor: AppColors.buttonColor,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(36.0), // Adjust the padding as needed
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CreateTeamScreen()),
+            );
+          },
+          child: Icon(Icons.add),
+          backgroundColor: AppColors.buttonColor,
+          foregroundColor: Colors.white, // Set the color of the + icon
+        ),
       ),
     );
   }

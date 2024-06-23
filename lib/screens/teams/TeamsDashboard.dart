@@ -9,7 +9,6 @@ import 'package:ams/screens/profile/Profile.dart';
 import 'package:ams/screens/home/Home.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/providers/authController.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
