@@ -5,7 +5,6 @@ import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/User.dart';
-import 'package:ams/providers/profileController.dart'; // Import the profile controller
 
 class TeamDetailsScreen extends HookConsumerWidget {
   final String teamId;
@@ -15,7 +14,6 @@ class TeamDetailsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamController = ref.read(teamControllerProvider);
-    final profileController = ref.read(profileControllerProvider); // Get the profile controller
     final team = useState<Team?>(null);
     final isLoading = useState<bool>(true);
     final userDetails = useState<Map<String, User>>({});
@@ -25,11 +23,13 @@ class TeamDetailsScreen extends HookConsumerWidget {
         try {
           final fetchedTeam = await teamController.getTeamDetails(teamId);
           team.value = fetchedTeam;
-          // Fetch details for each team member
+
           final userDetailsMap = <String, User>{};
+          print(fetchedTeam.teamMembers);
           for (var memberId in fetchedTeam.teamMembers) {
-            final userJson = await profileController.getProfile(); // Fetch user profile
-            userDetailsMap[memberId] = User.fromJson(userJson);
+
+            final userJson = await teamController.getUserDetails(memberId);
+            userDetailsMap[memberId] = User.fromJson(userJson as Map<String, dynamic>);
           }
           userDetails.value = userDetailsMap;
         } catch (e) {

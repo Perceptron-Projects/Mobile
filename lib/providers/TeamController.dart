@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:ams/api/ApiClient.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/TeamMember.dart';
+import 'package:ams/models/User.dart';
 
 final teamControllerProvider = Provider((ref) => TeamController());
 
@@ -156,6 +157,26 @@ class TeamController {
     return data.map((member) => TeamMember(name: member['firstName'], email: member['email'])).toList();
   }
 
+  Future<Map<String, dynamic>> getUserDetails(String userId) async {
+    String? token = await storage.read(key: 'token');
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    final response = await http.get(
+      Uri.parse('${ApiClient.baseUrl}/api/users/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch user details: ${response.body}');
+    }
+
+    return json.decode(response.body);
+  }
 
   Future<Team> getTeamDetails(String teamId) async {
     final token = await getAuthToken();

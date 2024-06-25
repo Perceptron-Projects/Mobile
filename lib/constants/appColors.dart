@@ -12,4 +12,8 @@ class AppColors {
   static const Color secondaryTextColor = Color.fromARGB(255, 255, 255, 255);
   static const Color whiteButtonColor = Colors.white;
   static const Color backgroundColor = Color.fromARGB(255, 36, 86, 249);
+
+
+  static const accentColor = Color(0xFF03DAC6);
+  static const eventColor = Color(0xFFFF5722);
 }

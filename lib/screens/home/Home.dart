@@ -11,6 +11,7 @@ import 'package:ams/screens/attendance/AttendanceDashboard.dart';
 import 'package:ams/screens/teams/TeamsDashboard.dart';
 import 'package:ams/screens/teams/ViewTeams.dart';
 import 'package:ams/screens/leave/LeaveDashboard.dart';
+import 'package:ams/screens/hr/CalenderManagement.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -96,7 +97,7 @@ class HomePageScreen extends HookConsumerWidget {
                                     WidgetSpan(
                                       child: Icon(
                                         Icons.waving_hand_rounded,
-                                        color: AppColors.primaryColor,
+                                        color: Colors.amber,
                                         size: screenSize.height * 0.04,
                                       ),
                                     ),
@@ -105,7 +106,7 @@ class HomePageScreen extends HookConsumerWidget {
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FontStyle.normal,
-                                        color: AppColors.primaryColor,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     TextSpan(
@@ -113,15 +114,14 @@ class HomePageScreen extends HookConsumerWidget {
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: screenSize.height * 0.04,
-                                        color: AppColors.primaryColor,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     TextSpan(
-                                      text: '!',
+                                      text: ' !',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontStyle: FontStyle.italic,
-                                        color: AppColors.primaryColor,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -187,14 +187,14 @@ class HomePageScreen extends HookConsumerWidget {
                         ),
                         buildNavButton(
                           'Leaves',
-                          Icons.person,
+                          Icons.umbrella_rounded,
                           LeaveDashboardScreen(),
                           navigateToScreen,
                         ),
                         buildNavButton(
                           'Calendar',
-                          Icons.person,
-                          ViewTeamsScreen(),
+                          Icons.calendar_month_rounded,
+                          CalendarScreen(),
                           navigateToScreen,
                         ),
                       ],
