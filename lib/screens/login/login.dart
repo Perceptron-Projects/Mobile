@@ -20,8 +20,6 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-
     final ValueNotifier<bool> isLoading = useState(false);
 
     ui.Size size = MediaQuery.of(context).size;
@@ -49,14 +47,9 @@ class LoginScreen extends HookConsumerWidget {
                       margin: EdgeInsets.only(top: 40),
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(horizontal: 40),
-                      child: const Text(
-                        "SyncIn",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
-                          fontSize: 48,
-                        ),
-                        textAlign: TextAlign.center,
+                      child: Image.asset(
+                        'assets/images/icon/companyLogo.png',
+                        height: 100,
                       ),
                     ),
                     SizedBox(height: 32.0),
@@ -65,7 +58,7 @@ class LoginScreen extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomWidgets.buildEmailTextField(
-                            emailController
+                              emailController
                           ),
                           SizedBox(height: 24.0),
                           CustomWidgets.buildPasswordTextField(
@@ -73,17 +66,13 @@ class LoginScreen extends HookConsumerWidget {
                           Container(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: (
-
-                                  ) {
-
+                              onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ForgetPasswordScreen(),
                                   ),
                                 );
-
                               },
                               child: Text(
                                 'Forgot Password?',
@@ -95,8 +84,7 @@ class LoginScreen extends HookConsumerWidget {
                           ),
                           SizedBox(height: 24.0),
                           ElevatedButton(
-                            onPressed:  isLoading.value ? null : () async {
-
+                            onPressed: isLoading.value ? null : () async {
                               final ValueNotifier<String> email = emailController.text != ""
                                   ? ValueNotifier<String>(emailController.text)
                                   : ValueNotifier<String>('');
@@ -106,33 +94,27 @@ class LoginScreen extends HookConsumerWidget {
 
                               isLoading.value = true;
 
-                              // print(await ref.read(authControllerProvider).signIn(
-                              //     email.value, password.value
-                              // ));
+                              try {
+                                await ref
+                                    .read(authControllerProvider)
+                                    .signIn(email.value, password.value);
 
-                                try {
-                                    await ref
-                                        .read(authControllerProvider)
-                                        .signIn(email.value, password.value);
-
-                                    Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => HomePageScreen()),
-                                  );
-                                  } catch (e) {
-                                    print(e);
-                                  } finally {
-                                    isLoading.value = false;
-                                  }
-
+                                Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => HomePageScreen()),
+                                );
+                              } catch (e) {
+                                print(e);
+                              } finally {
+                                isLoading.value = false;
+                              }
                             },
-
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(80.0),
                               ),
                               backgroundColor: AppColors.buttonColor,
                               fixedSize:
-                                  ui.Size(size.width * 0.3, size.width * 0.125),
+                              ui.Size(size.width * 0.3, size.width * 0.125),
                             ),
                             child: isLoading.value ? const SizedBox(
                               width: 20,
@@ -141,7 +123,7 @@ class LoginScreen extends HookConsumerWidget {
                                 valueColor: AlwaysStoppedAnimation<Color>(AppColors.textColor),
                               ),
                             )
-                            : const Text(
+                                : const Text(
                               'Sign In',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -163,6 +145,4 @@ class LoginScreen extends HookConsumerWidget {
       ),
     );
   }
-
-
 }

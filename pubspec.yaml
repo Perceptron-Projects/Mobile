@@ -66,12 +66,21 @@ dev_dependencies:
   custom_lint: ^0.6.0
   riverpod_lint: ^2.3.9
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.0.6
 
 
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/icon/company_logo.png"
+  image_path: "assets/images/icon/appLogo.png"
+
+flutter_native_splash:
+  color: "#ffffff"  # Background color
+  image: assets/images/icon/companyLogo.png  # Your splash screen image
+  android: true
+  ios: true
+  android_gravity: center
+  ios_content_mode: center
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -89,6 +98,7 @@ flutter:
      - assets/images/defaultProfileImage.jpg
      - assets/images/backgroundImage4.png
      - assets/images/icon/companyLogo.png
+     - assets/images/icon/appLogo.png
 
 
 
