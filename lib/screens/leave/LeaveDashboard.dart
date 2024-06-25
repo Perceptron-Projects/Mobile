@@ -101,7 +101,7 @@ class LeaveDashboardScreen extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         buildNavButton(
-                          'Request Leaves',
+                          'Time Off Request',
                           Icons.note_add,
                           RequestLeaveScreen(),
                           navigateToScreen,

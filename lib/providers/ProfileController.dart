@@ -36,7 +36,7 @@ class ProfileController {
     return json.decode(response.body);
   }
 
-  Future<void> updateProfile(Map<String, dynamic> updatedProfile) async {
+  Future<void> updateProfile(Map<String, dynamic> profileData) async {
     String? userId = await storage.read(key: 'userId');
     String? token = await storage.read(key: 'token');
 
@@ -45,17 +45,19 @@ class ProfileController {
     }
 
     final response = await http.put(
-      Uri.parse('${ApiClient.baseUrl}/api/users/$userId'),
+      Uri.parse('${ApiClient.baseUrl}/api/users/employee/edit-profile/$userId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: json.encode(updatedProfile),
+      body: json.encode(profileData),
     );
 
     if (response.statusCode != 200) {
       throw Exception('Failed to update profile');
     }
+
+    return;
   }
 
   Future<void> logout() async {

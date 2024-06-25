@@ -43,7 +43,6 @@ class TeamController {
     if (token == null) {
       throw Exception('Token not found');
     }
-    print(team.teamsImage);
     final response = await http.post(
       Uri.parse('${ApiClient.baseUrl}/api/users/teams'),
       headers: {

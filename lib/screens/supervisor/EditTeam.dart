@@ -43,7 +43,7 @@ class EditTeamScreen extends HookConsumerWidget {
           supervisor: supervisorController.text,
           startDate: startDateController.text,
           teamsImage: selectedImage.value != null
-              ? base64Encode(await selectedImage.value!.readAsBytes())
+              ? 'data:image/png;base64,${base64Encode(await selectedImage.value!.readAsBytes())}'
               : team.teamsImage,
           teamMembers: teamMembers.value.map((member) => member.email).toList(),
         );

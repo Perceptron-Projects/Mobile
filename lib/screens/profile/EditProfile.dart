@@ -1,10 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/ProfileController.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class EditProfileScreen extends HookConsumerWidget {
   final Map<String, dynamic> profileData;
@@ -13,34 +15,61 @@ class EditProfileScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final nameController = useTextEditingController(text: profileData['name']);
+    final firstNameController = useTextEditingController(text: profileData['firstName']);
+    final lastNameController = useTextEditingController(text: profileData['lastName']);
     final emailController = useTextEditingController(text: profileData['email']);
-    final birthdayController = useTextEditingController(text: profileData['birthday']);
-    final joinedDateController = useTextEditingController(text: profileData['joinday']);
-    final profilePhotoUrl = useState<String?>(profileData['profilePhotoUrl']);
-    final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
+    final contactNoController = useTextEditingController(text: profileData['contactNo']);
+    final currentPasswordController = useTextEditingController();
+    final newPasswordController = useTextEditingController();
     final picker = ImagePicker();
+    final selectedImage = useState<File?>(null);
+    final formKey = useState(GlobalKey<FormState>());
 
     Future<void> handleSave() async {
+      if (!formKey.value.currentState!.validate()) {
+        return;
+      }
+
+      String? base64Image;
+      if (selectedImage.value != null) {
+        try {
+          final bytes = await selectedImage.value!.readAsBytes();
+          base64Image = "data:image/jpeg;base64," + base64Encode(bytes);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Failed to encode image: ${e.toString()}'),
+          ));
+          return;
+        }
+      } else {
+        base64Image = profileData['imageUrl'];
+      }
+
       final updatedProfile = {
-        'name': nameController.text,
+        'firstName': firstNameController.text,
+        'lastName': lastNameController.text,
         'email': emailController.text,
-        'birthday': birthdayController.text,
-        'joinday': joinedDateController.text,
-        'profilePhotoUrl': profilePhotoUrl.value,
+        'contactNo': contactNoController.text,
+        'currentPassword': currentPasswordController.text,
+        'newPassword': newPasswordController.text,
+        'image': base64Image,
       };
 
-      await ref.read(profileControllerProvider).updateProfile(updatedProfile);
-      Navigator.pop(context, updatedProfile);
+      try {
+        await ref.read(profileControllerProvider).updateProfile(updatedProfile);
+        Navigator.pop(context, updatedProfile);
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to update profile: ${error.toString()}'),
+        ));
+      }
     }
 
     Future<void> pickImage(ImageSource source) async {
       final pickedFile = await picker.pickImage(source: source);
 
       if (pickedFile != null) {
-        // Assuming you want to upload the image and get a URL back
-        // For this example, we are using a local file path
-        profilePhotoUrl.value = pickedFile.path;
+        selectedImage.value = File(pickedFile.path);
       }
     }
 
@@ -51,8 +80,8 @@ class EditProfileScreen extends HookConsumerWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height - MediaQuery.of(context).viewInsets.bottom,
+          child: Form(
+            key: formKey.value,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -80,34 +109,82 @@ class EditProfileScreen extends HookConsumerWidget {
                       ),
                     );
                     if (source != null) {
-                      pickImage(source);
+                      await pickImage(source);
                     }
                   },
-                  child: CircleAvatar(
-                    radius: 100,
-                    backgroundImage: profilePhotoUrl.value != null
-                        ? FileImage(File(profilePhotoUrl.value!))
-                        : AssetImage(defaultProfileImageUrl) as ImageProvider,
+                  child: ClipOval(
+                    child: Container(
+                      color: Color(0x3DFF8383),
+                      height: 200,
+                      width: 200,
+                      child: selectedImage.value != null
+                          ? Image.file(
+                        selectedImage.value!,
+                        fit: BoxFit.cover,
+                        width: 200,
+                        height: 200,
+                      )
+                          : (profileData['imageUrl'] != null && profileData['imageUrl'].isNotEmpty
+                          ? Image.network(
+                        profileData['imageUrl'],
+                        fit: BoxFit.cover,
+                        width: 200,
+                        height: 200,
+                      )
+                          : Icon(
+                        Icons.camera_alt,
+                        color: Colors.grey[800],
+                        size: 50,
+                      )),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16),
                 ProfileInfoEditItem(
-                  label: 'Name',
-                  controller: nameController,
+                  label: 'First Name',
+                  controller: firstNameController,
+                ),
+                ProfileInfoEditItem(
+                  label: 'Last Name',
+                  controller: lastNameController,
                 ),
                 ProfileInfoEditItem(
                   label: 'Email',
                   controller: emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
                 ),
-                ProfileDateEditItem(
-                  label: 'Birthday',
-                  controller: birthdayController,
+                ProfileInfoEditItem(
+                  label: 'Contact No',
+                  controller: contactNoController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                      return 'Please enter a valid contact number';
+                    }
+                    return null;
+                  },
                 ),
-                ProfileDateEditItem(
-                  label: 'Joined Date',
-                  controller: joinedDateController,
+                ProfileInfoEditItem(
+                  label: 'Current Password',
+                  controller: currentPasswordController,
+                  obscureText: true,
                 ),
-                Spacer(),
+                ProfileInfoEditItem(
+                  label: 'New Password',
+                  controller: newPasswordController,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty && value.length < 6) {
+                      return 'Password should be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: handleSave,
                   style: ElevatedButton.styleFrom(
@@ -127,11 +204,15 @@ class EditProfileScreen extends HookConsumerWidget {
 class ProfileInfoEditItem extends StatelessWidget {
   final String label;
   final TextEditingController controller;
+  final bool obscureText;
+  final String? Function(String?)? validator;
 
   const ProfileInfoEditItem({
     Key? key,
     required this.label,
     required this.controller,
+    this.obscureText = false,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -143,78 +224,26 @@ class ProfileInfoEditItem extends StatelessWidget {
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(32.0),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 16), // Add spacing between label and text field
-          Expanded(
-            child: TextField(
-              controller: controller,
-              textAlign: TextAlign.right, // Align text to the right
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 4.0),
+          SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            obscureText: obscureText,
+            validator: validator,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(48.0),
+                borderSide: BorderSide.none,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileDateEditItem extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-
-  const ProfileDateEditItem({
-    Key? key,
-    required this.label,
-    required this.controller,
-  }) : super(key: key);
-
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-    );
-
-    if (selectedDate != null) {
-      controller.text = "${selectedDate.toLocal()}".split(' ')[0]; // Format date as YYYY-MM-DD
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(32.0),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 16), // Add spacing between label and text field
-          Expanded(
-            child: TextField(
-              controller: controller,
-              textAlign: TextAlign.right, // Align text to the right
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 4.0),
-              ),
-              readOnly: true,
-              onTap: () => _selectDate(context), // Show date picker when tapped
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
             ),
           ),
         ],
