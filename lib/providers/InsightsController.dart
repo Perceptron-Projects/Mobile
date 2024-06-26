@@ -9,6 +9,7 @@ import 'package:ams/providers/AuthController.dart';
 class InsightsController {
   static const int definedWorkedHours = 9;
   static const int definedWorkedDays = 5;
+  static const int plannedHours = definedWorkedHours*definedWorkedDays;
 
   Future<Map<String, dynamic>> fetchAttendanceData(DateTime startDate, DateTime endDate) async {
     final token = await AuthController().getAuthToken();

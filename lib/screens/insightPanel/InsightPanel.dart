@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:ams/providers/InsightsController.dart';
+import 'package:ams/components/CustomWidget.dart';
 import 'package:intl/intl.dart';
 
 class InsightsScreen extends HookConsumerWidget {
@@ -42,7 +43,7 @@ class InsightsScreen extends HookConsumerWidget {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Insights',
+            'My Insights',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ),
@@ -55,7 +56,7 @@ class InsightsScreen extends HookConsumerWidget {
     if (errorMessage.value != null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Insights'),
+          title: Text('My Insights'),
         ),
         body: Center(
           child: Text(errorMessage.value!),
@@ -63,12 +64,14 @@ class InsightsScreen extends HookConsumerWidget {
       );
     }
 
+
+
     final processedData = insightsController.processAttendanceData(attendanceData.value!, leaveData.value!);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Insights',
+          'My Insights',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
@@ -106,17 +109,56 @@ class InsightsScreen extends HookConsumerWidget {
                   mainData(processedData)
               )),
             SizedBox(height: 24),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                children: [
-                  _buildTile('Total Hours', '${processedData['totalWorkedHours']}'),
-                  _buildTile('Average Activity', '${processedData['averageActivity']} %'),
-                  _buildTile('Overtime Hours', '${processedData['totalOvertimeHours']}'),
-                  _buildTile('Negative Hours', '${processedData['totalNegativeHours']}'),
-                ],
-              ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  children: [
+                    _buildTile('Planned Hours', '${InsightsController.plannedHours}'),
+                    _buildTile('Worked Hours', '${processedData['totalWorkedHours']}'),
+                    _buildTile('Overtime Hours', '${processedData['totalOvertimeHours']}'),
+                    _buildTile('Negative Hours', '${processedData['totalNegativeHours']} '),
+                  ],
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.height * 0.12,
+                  height: MediaQuery.of(context).size.height * 0.12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xff23b6e6),
+                        const Color(0xff02d39a),
+                      ],
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Average',
+                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height:2),
+                      Text(
+                        '${processedData['averageActivity']}%',
+                        style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height:2),
+                      Text(
+                        'Activity',
+                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

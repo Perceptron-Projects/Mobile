@@ -1,4 +1,5 @@
 import 'package:ams/screens/insightPanel/InsightPanel.dart';
+import 'package:ams/screens/welcome/Welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -46,6 +47,8 @@ class HomePageScreen extends HookConsumerWidget {
         MaterialPageRoute(builder: (context) => screen),
       );
     }
+
+
 
     String getGreeting() {
       final hour = DateTime.now().hour;
@@ -193,8 +196,8 @@ class HomePageScreen extends HookConsumerWidget {
                           navigateToScreen,
                         ),
                         buildNavButton(
-                          'Calendar',
-                          Icons.calendar_month_rounded,
+                          'Insights',
+                          Icons.insights,
                           InsightsScreen(),
                           navigateToScreen,
                         ),
@@ -209,8 +212,7 @@ class HomePageScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: 0, // Adjust the currentIndex based on your logic
-        onTap: (index) {
-          // Handle the tap event, navigate to different screens
+        onTap: (index) async {
           if (index == 0) {
             Navigator.push(
               context,
@@ -220,6 +222,11 @@ class HomePageScreen extends HookConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ProfileScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
             );
           }
         },
