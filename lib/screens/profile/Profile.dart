@@ -63,6 +63,7 @@ class ProfileScreen extends HookConsumerWidget {
     final userId = profileData['userId']?.toString() ?? 'N/A';
     final birthday = profileData['birthday'] ?? 'N/A';
     final joinedDate = profileData['joinday'] ?? 'N/A';
+    final contactNo = profileData['contactNo'] ?? 'N/A';
     final email = profileData['email'] ?? 'N/A';
     final profilePhotoUrl = profileData['imageUrl'];
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
@@ -110,12 +111,16 @@ class ProfileScreen extends HookConsumerWidget {
               value: firstName+" "+lastName,
             ),
             ProfileInfoItem(
-              label: 'User ID',
+              label: 'Employee ID',
               value: userId,
             ),
             ProfileInfoItem(
               label: 'Email',
               value: email,
+            ),
+            ProfileInfoItem(
+              label: 'Contact No',
+              value: contactNo,
             ),
             ProfileInfoItem(
               label: 'Birthday',
@@ -130,12 +135,32 @@ class ProfileScreen extends HookConsumerWidget {
               onPressed: handleLogout,
               style: ElevatedButton.styleFrom(
                 primary: AppColors.textFieldFillColor,
+                minimumSize: Size(150, 50), // Adjust the button size
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Adjust the padding
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32.0), // Adjust the border radius
+                ),
+                side: BorderSide(color: AppColors.buttonColor, width: 2), // Add a border with red color
               ),
-              child: Text(
-                'Logout',
-                style: TextStyle(fontSize: 18, color: Colors.red),
+              child: Row(
+                mainAxisSize: MainAxisSize.min, // Keep the button size to its minimum
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Colors.red,
+                  ),
+                  SizedBox(width: 8), // Space between icon and text
+                  Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold, // Optional: make the text bold
+                    ),
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         ),
       ),

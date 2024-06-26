@@ -21,14 +21,18 @@ class EditProfileScreen extends HookConsumerWidget {
     final contactNoController = useTextEditingController(text: profileData['contactNo']);
     final currentPasswordController = useTextEditingController();
     final newPasswordController = useTextEditingController();
+    final confirmPasswordController = useTextEditingController(); // Added for confirm password
     final picker = ImagePicker();
     final selectedImage = useState<File?>(null);
     final formKey = useState(GlobalKey<FormState>());
+    final isLoading = useState(false); // State for loading indicator
 
     Future<void> handleSave() async {
       if (!formKey.value.currentState!.validate()) {
         return;
       }
+
+      isLoading.value = true; // Show loading indicator
 
       String? base64Image;
       if (selectedImage.value != null) {
@@ -39,10 +43,11 @@ class EditProfileScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Failed to encode image: ${e.toString()}'),
           ));
+          isLoading.value = false; // Hide loading indicator
           return;
         }
       } else {
-        base64Image = profileData['imageUrl'];
+        base64Image = ''; // Send an empty string if the image is not changed
       }
 
       final updatedProfile = {
@@ -57,11 +62,16 @@ class EditProfileScreen extends HookConsumerWidget {
 
       try {
         await ref.read(profileControllerProvider).updateProfile(updatedProfile);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Profile updated successfully'),
+        ));
         Navigator.pop(context, updatedProfile);
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Failed to update profile: ${error.toString()}'),
         ));
+      } finally {
+        isLoading.value = false; // Hide loading indicator
       }
     }
 
@@ -75,7 +85,10 @@ class EditProfileScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -184,13 +197,31 @@ class EditProfileScreen extends HookConsumerWidget {
                     return null;
                   },
                 ),
+                ProfileInfoEditItem(
+                  label: 'Confirm Password',
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value != newPasswordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
                 SizedBox(height: 16),
-                ElevatedButton(
+                isLoading.value // Display loading indicator if isLoading is true
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
                   onPressed: handleSave,
                   style: ElevatedButton.styleFrom(
-                    primary: AppColors.primaryColor,
+                    primary: AppColors.buttonColor,
                   ),
-                  child: Text('Save'),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white, // Set the text color to white
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -222,7 +253,7 @@ class ProfileInfoEditItem extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(32.0),
+        borderRadius: BorderRadius.circular(54.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
