@@ -195,7 +195,7 @@ class HomePageScreen extends HookConsumerWidget {
                         buildNavButton(
                           'Calendar',
                           Icons.calendar_month_rounded,
-                          InsightPanelScreen(),
+                          InsightsScreen(),
                           navigateToScreen,
                         ),
                       ],
