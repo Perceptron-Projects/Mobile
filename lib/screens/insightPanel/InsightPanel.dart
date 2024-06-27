@@ -17,10 +17,7 @@ class InsightsScreen extends HookConsumerWidget {
     final errorMessage = useState<String?>(null);
     final currentDate = useState(DateTime.now());
 
-    Future<void> fetchData() async {
-      final startDate = insightsController.getStartOfWeek(currentDate.value);
-      final endDate = startDate.add(Duration(days: 4));
-
+    Future<void> fetchData(DateTime startDate, DateTime endDate) async {
       isLoading.value = true;
 
       try {
@@ -36,7 +33,9 @@ class InsightsScreen extends HookConsumerWidget {
     }
 
     useEffect(() {
-      fetchData();
+      final startDate = insightsController.getStartOfWeek(currentDate.value);
+      final endDate = startDate.add(Duration(days: 4));
+      fetchData(startDate, endDate);
     }, [currentDate.value]);
 
     if (isLoading.value) {
@@ -63,8 +62,6 @@ class InsightsScreen extends HookConsumerWidget {
         ),
       );
     }
-
-
 
     final processedData = insightsController.processAttendanceData(attendanceData.value!, leaveData.value!);
 
@@ -103,11 +100,10 @@ class InsightsScreen extends HookConsumerWidget {
             ),
             SizedBox(height: 16),
             Container(
-              height:  MediaQuery.of(context).size.height * 0.3, // Adjust the height
-              width:  MediaQuery.of(context).size.width * 0.8, // Adjust the width
-              child:LineChart(
-                  mainData(processedData)
-              )),
+              height: MediaQuery.of(context).size.height * 0.3, // Adjust the height
+              width: MediaQuery.of(context).size.width * 0.8, // Adjust the width
+              child: LineChart(mainData(processedData)),
+            ),
             SizedBox(height: 24),
             Stack(
               alignment: Alignment.center,
@@ -119,7 +115,7 @@ class InsightsScreen extends HookConsumerWidget {
                     _buildTile('Planned Hours', '${InsightsController.plannedHours}'),
                     _buildTile('Worked Hours', '${processedData['totalWorkedHours']}'),
                     _buildTile('Overtime Hours', '${processedData['totalOvertimeHours']}'),
-                    _buildTile('Negative Hours', '${processedData['totalNegativeHours']} '),
+                    _buildTile('Negative Hours', '${processedData['totalNegativeHours']}'),
                   ],
                 ),
                 Container(
@@ -143,13 +139,13 @@ class InsightsScreen extends HookConsumerWidget {
                         style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height:2),
+                      SizedBox(height: 2),
                       Text(
                         '${processedData['averageActivity']}%',
                         style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height:2),
+                      SizedBox(height: 2),
                       Text(
                         'Activity',
                         style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
@@ -182,7 +178,7 @@ class InsightsScreen extends HookConsumerWidget {
             Text(
               title,
               style: TextStyle(fontSize: 18),
-            )
+            ),
           ],
         ),
       ),

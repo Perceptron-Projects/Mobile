@@ -145,18 +145,26 @@ class CustomSnackbar extends StatelessWidget {
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final Color selectedItemColor;
+  final Color unselectedItemColor;
+
 
   const CustomBottomNavigationBar({
     Key? key,
     required this.currentIndex,
     required this.onTap,
+    this.selectedItemColor = AppColors.buttonColor,
+    this.unselectedItemColor = Colors.grey,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: onTap,
+      selectedItemColor: selectedItemColor,
+      unselectedItemColor: unselectedItemColor,
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -169,7 +177,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
           label: 'Calendar',
-        )
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.logout),
+          label: 'Logout',
+        ),
       ],
     );
   }
