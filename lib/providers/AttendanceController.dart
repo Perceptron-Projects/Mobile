@@ -108,22 +108,32 @@ class AttendanceController {
 
     List<Map<String, dynamic>> attendanceRecords = List<Map<String, dynamic>>.from(data['attendanceRecords']);
 
-    // Filter out any records where 'time' is null or not a string
-    attendanceRecords = attendanceRecords.where((record) => record['time'] != null && record['time'] is String).toList();
+
+    // Filter out any records where 'date' is null or not a string
+    attendanceRecords = attendanceRecords.where((record) => record['date'] != null && record['date'] is String).toList();
+
+    // Ensure all bool fields are non-null
+    attendanceRecords = attendanceRecords.map((record) {
+      record['isCheckedIn'] = record['isCheckedIn'] ?? false;
+      record['isCheckedOut'] = record['isCheckedOut'] ?? false;
+      record['isWorkFromHome'] = record['isWorkFromHome'] ?? false;
+      return record;
+    }).toList();
+
 
     // Sort the attendance records by date
     attendanceRecords.sort((a, b) {
-      DateTime dateA = DateTime.parse(a['time']);
-      DateTime dateB = DateTime.parse(b['time']);
+      DateTime dateA = DateTime.parse(a['date']);
+      DateTime dateB = DateTime.parse(b['date']);
       return dateB.compareTo(dateA);
     });
+
 
     return attendanceRecords;
   }
 
 
-
-    Future<void> sendWorkFromHomeRequest(DateTime date) async {
+  Future<void> sendWorkFromHomeRequest(DateTime date) async {
       String? employeeId = await storage.read(key: 'userId');
       String? companyId = await storage.read(key: 'companyId');
       String? token = await storage.read(key: 'token');

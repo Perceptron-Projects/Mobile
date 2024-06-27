@@ -166,6 +166,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.person),
           label: 'Profile',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.calendar_today),
+          label: 'Calendar',
+        )
       ],
     );
   }
@@ -691,3 +695,4 @@ class CustomFormField extends StatelessWidget {
     );
   }
 }
+

@@ -16,9 +16,13 @@ class ForgetPasswordController {
 
     if (response.statusCode == 200) {
       return 'OTP sent successfully';
+    } else if(response.statusCode == 404){
+      return 'User not registered';
     } else {
       return 'Failed to send OTP';
     }
+
+
   }
 
   static Future<String?> compareOtp(String email, String otp) async {

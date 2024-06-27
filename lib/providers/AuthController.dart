@@ -51,7 +51,6 @@ class AuthController {
     }
   }
 
-
   Future<Map<String, dynamic>> authorizedRequest(String method, String endPoint) async {
     final token = await getAuthToken();
 
