@@ -24,6 +24,7 @@ class HomePageScreen extends HookConsumerWidget {
     final firstName = useState<String?>('');
     final profileImage = useState<String?>('');
     final screenSize = MediaQuery.of(context).size;
+    final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
 
     useEffect(() {
       Future<void> loadUserData() async {
@@ -31,7 +32,7 @@ class HomePageScreen extends HookConsumerWidget {
           var userProfile = await ref.read(profileControllerProvider).getProfile();
           if (userProfile != null) {
             firstName.value = userProfile['firstName']; // Update the state with the first name
-            profileImage.value = userProfile['imageUrl']; // Update the state with the profile image
+            profileImage.value = userProfile['imageUrl']??'${defaultProfileImageUrl}'; // Update the state with the profile image
           }
         } catch (e) {
           debugPrint('Error fetching user profile: $e');
@@ -229,7 +230,18 @@ class HomePageScreen extends HookConsumerWidget {
               MaterialPageRoute(builder: (context) => CalendarScreen()),
             );
           }
+          else if (index == 3) {
+            // Handle logout
+            await ref.read(profileControllerProvider).logout();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          }
         },
+        selectedItemColor: AppColors.buttonColor,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }

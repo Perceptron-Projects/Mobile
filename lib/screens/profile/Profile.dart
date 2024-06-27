@@ -6,6 +6,10 @@ import 'package:ams/providers/ProfileController.dart';
 import 'package:ams/screens/welcome/Welcome.dart';
 import 'package:ams/screens/profile/EditProfile.dart';
 
+import '../../components/CustomWidget.dart';
+import '../home/Home.dart';
+import '../hr/CalenderManagement.dart';
+
 class ProfileScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,8 +69,9 @@ class ProfileScreen extends HookConsumerWidget {
     final joinedDate = profileData['joinday'] ?? 'N/A';
     final contactNo = profileData['contactNo'] ?? 'N/A';
     final email = profileData['email'] ?? 'N/A';
-    final profilePhotoUrl = profileData['imageUrl'];
+
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
+    final profilePhotoUrl = profileData['imageUrl']??'${defaultProfileImageUrl}';
 
     return Scaffold(
       appBar: AppBar(
@@ -130,39 +135,41 @@ class ProfileScreen extends HookConsumerWidget {
               label: 'Joined Date',
               value: joinedDate,
             ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: handleLogout,
-              style: ElevatedButton.styleFrom(
-                primary: AppColors.textFieldFillColor,
-                minimumSize: Size(150, 50), // Adjust the button size
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Adjust the padding
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32.0), // Adjust the border radius
-                ),
-                side: BorderSide(color: AppColors.buttonColor, width: 2), // Add a border with red color
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min, // Keep the button size to its minimum
-                children: [
-                  Icon(
-                    Icons.logout,
-                    color: Colors.red,
-                  ),
-                  SizedBox(width: 8), // Space between icon and text
-                  Text(
-                    'Logout',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold, // Optional: make the text bold
-                    ),
-                  ),
-                ],
-              ),
-            )
+            Spacer()
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 1, // Adjust the currentIndex based on your logic
+        onTap: (index) async {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePageScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
+            );
+          }
+          else if (index == 3) {
+            // Handle logout
+            await ref.read(profileControllerProvider).logout();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          }
+        },
+        selectedItemColor: AppColors.buttonColor,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }

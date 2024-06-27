@@ -103,7 +103,9 @@ class LoginScreen extends HookConsumerWidget {
                                   MaterialPageRoute(builder: (context) => HomePageScreen()),
                                 );
                               } catch (e) {
-                                print(e);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Invaild Email or Password!")),
+                                );
                               } finally {
                                 isLoading.value = false;
                               }

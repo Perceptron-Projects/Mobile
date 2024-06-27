@@ -6,6 +6,12 @@ import 'package:ams/providers/HolidayController.dart';
 import 'package:ams/providers/AuthController.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../components/CustomWidget.dart';
+import '../../providers/ProfileController.dart';
+import '../home/Home.dart';
+import '../profile/Profile.dart';
+import '../welcome/Welcome.dart';
+
 final holidayControllerProvider = Provider((ref) => HolidayController());
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -20,7 +26,6 @@ class CalendarScreen extends HookConsumerWidget {
     final isLoading = useState<bool>(false);
     final userId = useState<String?>(null);
     final userRoles = useState<List<String>>([]);
-
 
     Future<void> fetchHolidays() async {
       try {
@@ -128,8 +133,6 @@ class CalendarScreen extends HookConsumerWidget {
       }
     }
 
-
-
     void _showAddHolidayDialog() {
       showDialog(
         context: context,
@@ -147,6 +150,7 @@ class CalendarScreen extends HookConsumerWidget {
                 title: Text('Add Holiday'),
                 content: SingleChildScrollView(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       TextField(
                         controller: startController,
@@ -231,7 +235,6 @@ class CalendarScreen extends HookConsumerWidget {
       );
     }
 
-
     void _showDeleteConfirmationDialog(String day, BuildContext context, StateSetter parentSetState) {
       showDialog(
         context: context,
@@ -279,7 +282,6 @@ class CalendarScreen extends HookConsumerWidget {
       );
     }
 
-
     void _showEditHolidayDialog(Map<String, dynamic> holiday) {
       showDialog(
         context: context,
@@ -298,6 +300,7 @@ class CalendarScreen extends HookConsumerWidget {
                 title: Text('Edit Holiday'),
                 content: SingleChildScrollView(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       TextField(
                         controller: startController,
@@ -392,12 +395,9 @@ class CalendarScreen extends HookConsumerWidget {
       );
     }
 
-
-
     List<dynamic> _getEventsForDay(DateTime day) {
       return holidays.value[DateTime.utc(day.year, day.month, day.day)] ?? [];
     }
-
 
     return Scaffold(
       appBar: AppBar(
@@ -415,7 +415,7 @@ class CalendarScreen extends HookConsumerWidget {
           child: Center(
             child: Container(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height* 0.65,
+              height: MediaQuery.of(context).size.height * 0.65,
               decoration: BoxDecoration(
                 color: Colors.indigoAccent.withOpacity(0.25),
                 borderRadius: BorderRadius.circular(32),
@@ -432,70 +432,69 @@ class CalendarScreen extends HookConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-                      crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Center(
-                            child: TableCalendar(
-                              focusedDay: DateTime.now(),
-                              firstDay: DateTime.utc(2020, 1, 1),
-                              lastDay: DateTime.utc(2030, 12, 31),
-                              eventLoader: _getEventsForDay,
-                              onDaySelected: (selectedDay, focusedDay) {
-                                selectedDate.value = selectedDay;
+                          child: TableCalendar(
+                            focusedDay: DateTime.now(),
+                            firstDay: DateTime.utc(2020, 1, 1),
+                            lastDay: DateTime.utc(2030, 12, 31),
+                            eventLoader: _getEventsForDay,
+                            onDaySelected: (selectedDay, focusedDay) {
+                              selectedDate.value = selectedDay;
+                            },
+                            calendarStyle: CalendarStyle(
+                              todayDecoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                              selectedDecoration: BoxDecoration(
+                                color: Colors.yellow,
+                                shape: BoxShape.circle,
+                              ),
+                              markerDecoration: BoxDecoration(
+                                color: AppColors.eventColor,
+                                shape: BoxShape.circle,
+                              ),
+                              todayTextStyle: TextStyle(
+                                color: Colors.yellow,
+                              ),
+                              selectedTextStyle: TextStyle(
+                                color: Colors.amber,
+                              ),
+                            ),
+                            headerStyle: HeaderStyle(
+                              formatButtonVisible: false,
+                              titleTextStyle: TextStyle(
+                                color: AppColors.buttonColor,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              leftChevronIcon: Icon(
+                                Icons.chevron_left,
+                                color: Colors.pink,
+                                size: 36,
+                              ),
+                              rightChevronIcon: Icon(
+                                Icons.chevron_right,
+                                color: Colors.pink,
+                                size: 36,
+                              ),
+                            ),
+                            calendarBuilders: CalendarBuilders(
+                              markerBuilder: (context, date, events) {
+                                if (events.isNotEmpty) {
+                                  return Positioned(
+                                    bottom: 1,
+                                    child: _buildEventsMarker(date, events),
+                                  );
+                                }
+                                return SizedBox.shrink();
                               },
-                              calendarStyle: CalendarStyle(
-                                todayDecoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
-                                selectedDecoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  shape: BoxShape.circle,
-                                ),
-                                markerDecoration: BoxDecoration(
-                                  color: AppColors.eventColor,
-                                  shape: BoxShape.circle,
-                                ),
-                                todayTextStyle: TextStyle(
-                                  color: Colors.yellow,
-                                ),
-                                selectedTextStyle: TextStyle(
-                                  color: Colors.amber,
-                                ),
-                              ),
-                              headerStyle: HeaderStyle(
-                                formatButtonVisible: false,
-                                titleTextStyle: TextStyle(
-                                    color: AppColors.buttonColor,
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold
-                                ),
-                                leftChevronIcon: Icon(
-                                    Icons.chevron_left,
-                                    color: Colors.pink,
-                                    size: 36
-                                ),
-                                rightChevronIcon: Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.pink,
-                                  size: 36,
-                                ),
-                              ),
-                              calendarBuilders: CalendarBuilders(
-                                markerBuilder: (context, date, events) {
-                                  if (events.isNotEmpty) {
-                                    return Positioned(
-                                      bottom: 1,
-                                      child: _buildEventsMarker(date, events),
-                                    );
-                                  }
-                                },
-                              ),
-                            )
+                            ),
+                          ),
                         ),
-
-
                         if (selectedDate.value != null)
                           ..._getEventsForDay(selectedDate.value!).map((event) => ListTile(
                             title: Text(
@@ -519,7 +518,6 @@ class CalendarScreen extends HookConsumerWidget {
                             ),
                             onTap: isHr ? () => _showEditHolidayDialog(event) : null,
                           )),
-
                       ],
                     ),
                   ),
@@ -542,8 +540,39 @@ class CalendarScreen extends HookConsumerWidget {
         ),
       )
           : null,
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 2,
+        onTap: (index) async {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePageScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
+            );
+          }
+          else if (index == 3) {
+            // Handle logout
+            await ref.read(profileControllerProvider).logout();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          }
+        },
+        selectedItemColor: AppColors.buttonColor,
+        unselectedItemColor: Colors.grey,
+      ),
     );
-
   }
 
   Widget _buildEventsMarker(DateTime date, List events) {
