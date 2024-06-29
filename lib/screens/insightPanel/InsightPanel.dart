@@ -34,7 +34,7 @@ class InsightsScreen extends HookConsumerWidget {
 
     useEffect(() {
       final startDate = insightsController.getStartOfWeek(currentDate.value);
-      final endDate = startDate.add(Duration(days: 4));
+      final endDate = startDate.add(Duration(days: 5));
       fetchData(startDate, endDate);
     }, [currentDate.value]);
 

@@ -5,6 +5,8 @@ import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/User.dart';
+import 'package:ams/providers/AuthController.dart'; // Import AuthController for roles fetching
+import 'package:ams/screens/supervisor/AdvancedUserDetails.dart'; // Import AdvancedUserDetailsScreen
 
 class TeamDetailsScreen extends HookConsumerWidget {
   final String teamId;
@@ -14,9 +16,11 @@ class TeamDetailsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teamController = ref.read(teamControllerProvider);
+    final authController = ref.read(authControllerProvider); // Add AuthController
     final team = useState<Team?>(null);
     final isLoading = useState<bool>(true);
     final userDetails = useState<Map<String, User>>({});
+    final userRoles = useState<List<String>>([]); // Add user roles state
 
     useEffect(() {
       Future<void> fetchTeamDetails() async {
@@ -25,13 +29,14 @@ class TeamDetailsScreen extends HookConsumerWidget {
           team.value = fetchedTeam;
 
           final userDetailsMap = <String, User>{};
-          print(fetchedTeam.teamMembers);
           for (var memberId in fetchedTeam.teamMembers) {
-
             final userJson = await teamController.getUserDetails(memberId);
             userDetailsMap[memberId] = User.fromJson(userJson as Map<String, dynamic>);
           }
           userDetails.value = userDetailsMap;
+
+          // Fetch user roles
+          userRoles.value = await authController.getRoles() ?? [];
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to fetch team details')),
@@ -150,19 +155,31 @@ class TeamDetailsScreen extends HookConsumerWidget {
                         final memberId = team.value!.teamMembers[index];
                         final user = userDetails.value[memberId];
                         return user != null
-                            ? Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundImage: NetworkImage(user.profileImage),
-                              backgroundColor: Colors.grey,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '${user.firstName} ${user.lastName}',
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                            ? GestureDetector(
+                          onTap: () {
+                            if (userRoles.value.contains('supervisor') || userRoles.value.contains('hr')) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdvancedUserDetailsScreen(userId: memberId),
+                                ),
+                              );
+                            }
+                          },
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundImage: NetworkImage(user.profileImage),
+                                backgroundColor: Colors.grey,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                '${user.firstName} ${user.lastName}',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         )
                             : CircularProgressIndicator();
                       },

@@ -48,6 +48,23 @@ class InsightsController {
     }
   }
 
+  Future<Map<String, dynamic>> fetchAttendanceDataForUser(DateTime startDate, DateTime endDate, String userId) async {
+    final token = await AuthController().getAuthToken();
+    final response = await http.get(
+      Uri.parse('${ApiClient.baseUrl}/api/users/employees/attendance/$userId/${DateFormat('yyyy-MM-dd').format(startDate)}/${DateFormat('yyyy-MM-dd').format(endDate)}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load attendance data');
+    }
+  }
+
   Map<String, dynamic> processAttendanceData(Map<String, dynamic> attendanceData, List<dynamic> leaveData) {
     double totalWorkedHours = 0;
     double totalOvertimeHours = 0;

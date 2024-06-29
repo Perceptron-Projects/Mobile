@@ -14,6 +14,7 @@ import 'package:ams/screens/teams/TeamsDashboard.dart';
 import 'package:ams/screens/teams/ViewTeams.dart';
 import 'package:ams/screens/leave/LeaveDashboard.dart';
 import 'package:ams/screens/hr/CalenderManagement.dart';
+import 'package:ams/screens/supervisor/AdvancedUserDetails.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -200,6 +201,7 @@ class HomePageScreen extends HookConsumerWidget {
                           'Insights',
                           Icons.insights,
                           InsightsScreen(),
+                          //InsightsScreen(),
                           navigateToScreen,
                         ),
                       ],
