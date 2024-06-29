@@ -149,7 +149,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   final Function(int) onTap;
   final Color selectedItemColor;
   final Color unselectedItemColor;
-
+  final bool showAccounts;
 
   const CustomBottomNavigationBar({
     Key? key,
@@ -157,6 +157,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
     required this.onTap,
     this.selectedItemColor = AppColors.buttonColor,
     this.unselectedItemColor = Colors.grey,
+    this.showAccounts = false,
   }) : super(key: key);
 
   @override
@@ -179,6 +180,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
           label: 'Calendar',
+        ),
+        if (showAccounts)
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Accounts',
+          ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.insights),
+          label: 'Insights',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.logout),

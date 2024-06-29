@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/appColors.dart';
 import 'package:ams/providers/teamController.dart';
@@ -13,10 +14,14 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
     final teamController = ref.read(teamControllerProvider);
     final teams = useState<List<Team>>([]);
     final isLoading = useState<bool>(true);
+    final userId = useState<String?>('');
+
+    final storage = FlutterSecureStorage();
 
     Future<void> fetchTeams() async {
       try {
-        teams.value = await teamController.getAllTeams();
+        userId.value = await storage.read(key: 'userId');
+        teams.value = await teamController.getTeamsForEmployee(userId.value ?? '');
       } catch (e) {
         print('Error fetching teams: $e');
       } finally {

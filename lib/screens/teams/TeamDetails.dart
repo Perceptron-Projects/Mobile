@@ -6,7 +6,7 @@ import 'package:ams/providers/teamController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/User.dart';
 import 'package:ams/providers/AuthController.dart'; // Import AuthController for roles fetching
-import 'package:ams/screens/supervisor/AdvancedUserDetails.dart'; // Import AdvancedUserDetailsScreen
+import 'package:ams/screens/userDetails/AdvancedUserDetails.dart'; // Import AdvancedUserDetailsScreen
 
 class TeamDetailsScreen extends HookConsumerWidget {
   final String teamId;
