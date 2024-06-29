@@ -9,6 +9,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../components/CustomWidget.dart';
 import '../../providers/ProfileController.dart';
 import '../home/Home.dart';
+import '../insightPanel/InsightPanel.dart';
 import '../profile/Profile.dart';
 import '../welcome/Welcome.dart';
 
@@ -560,6 +561,12 @@ class CalendarScreen extends HookConsumerWidget {
             );
           }
           else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InsightsScreen()),
+            );
+          }
+          else if (index == 4) {
             // Handle logout
             await ref.read(profileControllerProvider).logout();
             Navigator.pushAndRemoveUntil(

@@ -2,6 +2,7 @@ import 'package:ams/screens/insightPanel/InsightPanel.dart';
 import 'package:ams/screens/welcome/Welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/components/background.dart';
@@ -15,6 +16,7 @@ import 'package:ams/screens/teams/ViewTeams.dart';
 import 'package:ams/screens/leave/LeaveDashboard.dart';
 import 'package:ams/screens/hr/CalenderManagement.dart';
 import 'package:ams/screens/supervisor/AdvancedUserDetails.dart';
+import 'package:ams/screens/accounts/ViewAccounts.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
@@ -25,7 +27,11 @@ class HomePageScreen extends HookConsumerWidget {
     final firstName = useState<String?>('');
     final profileImage = useState<String?>('');
     final screenSize = MediaQuery.of(context).size;
+    final companyId = useState<String?>('');
+    final userId = useState<String?>('');
+    final userRoles = useState<List<String>>([]);
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
+    final storage = FlutterSecureStorage();
 
     useEffect(() {
       Future<void> loadUserData() async {
@@ -33,7 +39,10 @@ class HomePageScreen extends HookConsumerWidget {
           var userProfile = await ref.read(profileControllerProvider).getProfile();
           if (userProfile != null) {
             firstName.value = userProfile['firstName']; // Update the state with the first name
-            profileImage.value = userProfile['imageUrl']??'${defaultProfileImageUrl}'; // Update the state with the profile image
+            profileImage.value = userProfile['imageUrl']??'${defaultProfileImageUrl}';// Update the state with the profile image
+            userRoles.value = await ref.read(authControllerProvider).getRoles() ?? [];
+            companyId.value = await storage.read(key: 'companyId');
+            userId.value = await storage.read(key: 'userId');
           }
         } catch (e) {
           debugPrint('Error fetching user profile: $e');
@@ -197,13 +206,20 @@ class HomePageScreen extends HookConsumerWidget {
                           LeaveDashboardScreen(),
                           navigateToScreen,
                         ),
-                        buildNavButton(
-                          'Insights',
-                          Icons.insights,
-                          InsightsScreen(),
-                          //InsightsScreen(),
-                          navigateToScreen,
-                        ),
+                        if (userRoles.value.contains('supervisor') || userRoles.value.contains('hr'))
+                          buildNavButton(
+                            'Accounts',
+                            Icons.account_circle,
+                            ViewAccountScreen(companyId: companyId.value ?? 'e3580212-0428-45f1-bc07-69fe179dabdf'),
+                            navigateToScreen,
+                          )
+                        else
+                          buildNavButton(
+                            'Account',
+                            Icons.account_circle,
+                            AdvancedUserDetailsScreen(userId: userId.value ?? ''), // Replace with the actual current user ID
+                            navigateToScreen,
+                          ),
                       ],
                     ),
                   ],
@@ -233,6 +249,12 @@ class HomePageScreen extends HookConsumerWidget {
             );
           }
           else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InsightsScreen()),
+            );
+          }
+          else if (index == 4) {
             // Handle logout
             await ref.read(profileControllerProvider).logout();
             Navigator.pushAndRemoveUntil(

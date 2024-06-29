@@ -6,6 +6,13 @@ import 'package:ams/providers/InsightsController.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:intl/intl.dart';
 
+import '../../constants/AppColors.dart';
+import '../../providers/ProfileController.dart';
+import '../home/Home.dart';
+import '../hr/CalenderManagement.dart';
+import '../profile/Profile.dart';
+import '../welcome/Welcome.dart';
+
 class InsightsScreen extends HookConsumerWidget {
   final insightsController = InsightsController();
 
@@ -158,6 +165,44 @@ class InsightsScreen extends HookConsumerWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 3,
+        onTap: (index) async {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePageScreen()),
+            );
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfileScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
+            );
+          }
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InsightsScreen()),
+            );
+          }
+          else if (index == 4) {
+            // Handle logout
+            await ref.read(profileControllerProvider).logout();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          }
+        },
+        selectedItemColor: AppColors.buttonColor,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }

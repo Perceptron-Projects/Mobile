@@ -60,6 +60,27 @@ class ProfileController {
     return;
   }
 
+  Future<List<Map<String, dynamic>>> fetchEmployeesByCompany(String companyId) async {
+    String? token = await storage.read(key: 'token');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+    final response = await http.get(
+      Uri.parse('${ApiClient.baseUrl}/api/users/company/employees/$companyId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load employees');
+    }
+  }
+
   Future<void> logout() async {
     await storage.delete(key: 'token');
     await storage.delete(key: 'userId');

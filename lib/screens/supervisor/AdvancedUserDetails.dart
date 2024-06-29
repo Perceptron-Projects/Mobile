@@ -107,6 +107,26 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
                               ),
                             ],
                           ),
+                          Row(
+                            children: [
+                              Icon(Icons.cake, color: Colors.grey),
+                              SizedBox(width: 8),
+                              Text(
+                                userDetails['bithday']??'N/A',
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today, color: Colors.grey),
+                              SizedBox(width: 8),
+                              Text(
+                                userDetails['joinday']??'N/A',
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ],

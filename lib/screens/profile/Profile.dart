@@ -9,6 +9,7 @@ import 'package:ams/screens/profile/EditProfile.dart';
 import '../../components/CustomWidget.dart';
 import '../home/Home.dart';
 import '../hr/CalenderManagement.dart';
+import '../insightPanel/InsightPanel.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   @override
@@ -159,6 +160,12 @@ class ProfileScreen extends HookConsumerWidget {
             );
           }
           else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InsightsScreen()),
+            );
+          }
+          else if (index == 4) {
             // Handle logout
             await ref.read(profileControllerProvider).logout();
             Navigator.pushAndRemoveUntil(
