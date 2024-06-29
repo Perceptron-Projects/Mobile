@@ -19,6 +19,8 @@ class AttendanceController {
       throw Exception('Employee ID, company ID, or token not found');
     }
 
+    print(employeeId);
+
     final response = await http.patch(
       Uri.parse(
         '${ApiClient.baseUrl}/api/users/attendance/mark',

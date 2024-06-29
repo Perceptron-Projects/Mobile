@@ -29,7 +29,7 @@ class EditTeamScreen extends HookConsumerWidget {
     final startDateController = useTextEditingController(text: team.startDate);
     final teamMembersController = useTextEditingController();
     final teamMembers = useState<List<TeamMember>>(
-      team.teamMembers.map((e) => TeamMember(name: e, email: e)).toList(),
+      team.teamMembers.map((e) => TeamMember(name: e, email: e,userId: e)).toList(),
     );
     final selectedImage = useState<File?>(null);
     final teamController = ref.read(teamControllerProvider);

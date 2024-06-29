@@ -153,7 +153,11 @@ class TeamController {
     }
 
     final data = json.decode(response.body) as List;
-    return data.map((member) => TeamMember(name: member['firstName'], email: member['email'])).toList();
+    return data.map((member) => TeamMember(
+      name: member['firstName'],
+      email: member['email'],
+      userId: member['userId'],  // Add this line
+    )).toList();
   }
 
   Future<Map<String, dynamic>> getUserDetails(String userId) async {
@@ -221,5 +225,27 @@ class TeamController {
     return data.map((json) => Team.fromJson(json)).toList();
   }
 
+
+  Future<Map<String, dynamic>> getSupervisorDetails() async {
+    String? token = await storage.read(key: 'token');
+    String? userId = await storage.read(key: 'userId');
+    if (token == null || userId == null) {
+      throw Exception('Token or user ID not found');
+    }
+
+    final response = await http.get(
+      Uri.parse('${ApiClient.baseUrl}/api/users/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch user details: ${response.body}');
+    }
+
+    return json.decode(response.body);
+  }
 
 }

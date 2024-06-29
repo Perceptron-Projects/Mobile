@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:ams/constants/AppFontsSize.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/models/Team.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 typedef Validator = String? Function(String?);
 
@@ -706,5 +708,127 @@ class CustomFormField extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget buildBarChart(Map<String, dynamic> workedHours) {
+  // Determine the maximum value from the data to set as maxY
+  double maxY = [
+    (workedHours['mon'] ?? 0).toDouble(),
+    (workedHours['tue'] ?? 0).toDouble(),
+    (workedHours['wed'] ?? 0).toDouble(),
+    (workedHours['thu'] ?? 0).toDouble(),
+    (workedHours['fri'] ?? 0).toDouble(),
+  ].reduce((a, b) => a > b ? a : b);
+
+  // Add a little buffer to the maxY for visual padding
+  maxY = maxY + 2;
+
+  List<BarChartGroupData> barGroups = [
+    makeGroupData(0, (workedHours['mon'] ?? 0).toDouble()),
+    makeGroupData(1, (workedHours['tue'] ?? 0).toDouble()),
+    makeGroupData(2, (workedHours['wed'] ?? 0).toDouble()),
+    makeGroupData(3, (workedHours['thu'] ?? 0).toDouble()),
+    makeGroupData(4, (workedHours['fri'] ?? 0).toDouble()),
+  ];
+
+  return Container(
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 2)],
+    ),
+    child: AspectRatio(
+      aspectRatio: 1.8, // Adjust the aspect ratio as needed
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          barGroups: barGroups,
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (group) => Colors.transparent,
+              tooltipMargin: 2,
+              getTooltipItem: (BarChartGroupData group, int groupIndex, BarChartRodData rod, int rodIndex) {
+                return BarTooltipItem(
+                  rod.toY.toStringAsFixed(2),
+                  const TextStyle(
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false), // Hide Y axis data
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false), // Hide Y axis data
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false), // Hide Y axis data
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                reservedSize: 30,
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  final style = TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+
+                  );
+                  switch (value.toInt()) {
+                    case 0:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('Mon', style: style));
+                    case 1:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('Tue', style: style));
+                    case 2:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('Wed', style: style));
+                    case 3:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('Thu', style: style));
+                    case 4:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('Fri', style: style));
+                    default:
+                      return SideTitleWidget(axisSide: meta.axisSide, child: Text('', style: style));
+                  }
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          gridData: FlGridData(show: false), // Remove grid
+          maxY: maxY, // Set the maximum Y value to scale the chart appropriately
+        ),
+      ),
+    ),
+  );
+}
+
+BarChartGroupData makeGroupData(int x, double y) {
+  final barsGradient = LinearGradient(
+    colors: [Colors.blue.shade700, Colors.blue.shade300],
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
+  );
+
+  return BarChartGroupData(
+    x: x,
+    barRods: [
+      BarChartRodData(
+        toY: y,
+        width: 36,
+        gradient: barsGradient,
+        borderRadius: BorderRadius.zero,
+        rodStackItems: [
+          BarChartRodStackItem(0, y, Colors.transparent), // Ensure the bar values are shown on top
+        ],
+      ),
+    ],
+    showingTooltipIndicators: [0], // Show tooltip indicators on top of the bars
+  );
 }
 

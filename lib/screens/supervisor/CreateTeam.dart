@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ams/providers/AuthController.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,9 +10,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
+import 'package:ams/providers/ProfileController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/TeamMember.dart';
 import 'package:ams/components/CustomWidget.dart'; // Import the custom form field widget
+
+final profileControllerProvider = Provider((ref) => ProfileController());
 
 class CreateTeamScreen extends HookConsumerWidget {
   final _formKey = GlobalKey<FormState>();
@@ -39,7 +43,7 @@ class CreateTeamScreen extends HookConsumerWidget {
           teamsImage: selectedImage.value != null
               ? base64Encode(await selectedImage.value!.readAsBytes())
               : '',
-          teamMembers: teamMembers.value.map((member) => member.email).toList(),
+          teamMembers: teamMembers.value.map((member) => member.userId).toList(),
         );
 
         try {
@@ -59,6 +63,22 @@ class CreateTeamScreen extends HookConsumerWidget {
         selectedImage.value = File(pickedFile.path);
       }
     }
+
+    useEffect(() {
+      final teamController = ref.read(teamControllerProvider);
+      teamController.getSupervisorDetails().then((userDetails) {
+        supervisorController.text = userDetails['firstName'] + ' ' + userDetails['lastName'] ;
+        teamMembers.value = List.from(teamMembers.value)
+          ..add(TeamMember(
+              name: userDetails['firstName'] + ' ' + userDetails['lastName'],
+              email: userDetails['email'],
+              userId: userDetails['userId']
+          ));
+      });
+
+      return null;
+    }, []);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -122,6 +142,7 @@ class CreateTeamScreen extends HookConsumerWidget {
                 CustomFormField(
                   controller: supervisorController,
                   labelText: 'Supervisor',
+                  readOnly: true, // Add this line to make the field read-only
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a supervisor name';
