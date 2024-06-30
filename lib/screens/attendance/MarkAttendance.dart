@@ -25,6 +25,7 @@ class MarkAttendanceScreen extends HookConsumerWidget {
     final showSnackbar = useState<String?>(null);
     final selectedDate = useState<DateTime>(DateTime.now());
     final workFromHomeStatus = useState<String>('');
+    final TextEditingController reasonController = useTextEditingController();
 
     // Fetch the initial attendance and work-from-home status once
     useEffect(() {
@@ -58,7 +59,8 @@ class MarkAttendanceScreen extends HookConsumerWidget {
     void handleWorkFromHomeRequest() async {
       workFromHomeLoading.value = true;
       try {
-        await ref.read(attendanceControllerProvider).sendWorkFromHomeRequest(selectedDate.value);
+        String reason = reasonController.text.isNotEmpty ? reasonController.text : ' ';
+        await ref.read(attendanceControllerProvider).sendWorkFromHomeRequest(selectedDate.value,reason);
         showCustomSnackbar('Work from home request submitted successfully.');
         // Update work from home status
         ref.read(attendanceControllerProvider).getWorkFromHomeStatus(selectedDate.value).then((status) {
@@ -306,7 +308,7 @@ class MarkAttendanceScreen extends HookConsumerWidget {
                     ),
                     margin: EdgeInsets.only(top: 5),
                     alignment: Alignment.topCenter,
-                    padding: EdgeInsets.symmetric(horizontal: 5,vertical: 7),
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 7),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       mainAxisSize: MainAxisSize.min,
@@ -332,9 +334,7 @@ class MarkAttendanceScreen extends HookConsumerWidget {
                             ),
                             SizedBox(width: 10),
                             ElevatedButton(
-                              onPressed: workFromHomeLoading.value
-                                  ? null
-                                  : () async {
+                              onPressed: workFromHomeLoading.value ? null : () async {
                                 handleWorkFromHomeRequest();
                               },
                               child: Text(
@@ -351,6 +351,31 @@ class MarkAttendanceScreen extends HookConsumerWidget {
                               ),
                             ),
                           ],
+                        ),
+                        SizedBox(height: screenSize.height * 0.025),
+                        Container(
+                          width: screenSize.width * 0.7,
+                          child: TextFormField(
+                            controller: reasonController,
+                            decoration: InputDecoration(
+                              labelText: 'Reason',
+                              hintText: 'Enter reason for work from home',
+                              filled: true, // To fill the background color
+                              fillColor: Colors.grey[200], // Background color
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(36.0), // Rounded corners
+                                borderSide: BorderSide.none, // No border
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(36.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
                         ),
                         SizedBox(height: screenSize.height * 0.025),
                         Row(
@@ -387,12 +412,12 @@ class MarkAttendanceScreen extends HookConsumerWidget {
                               ),
                             ),
                             SizedBox(width: 10),
-
                           ],
                         ),
                       ],
                     ),
                   ),
+
                 ],
               ),
             ),

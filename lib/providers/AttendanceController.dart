@@ -135,7 +135,7 @@ class AttendanceController {
   }
 
 
-  Future<void> sendWorkFromHomeRequest(DateTime date) async {
+  Future<void> sendWorkFromHomeRequest(DateTime date,String reason) async {
       String? employeeId = await storage.read(key: 'userId');
       String? companyId = await storage.read(key: 'companyId');
       String? token = await storage.read(key: 'token');
@@ -159,6 +159,7 @@ class AttendanceController {
           'employeeId': employeeId,
           'companyId': companyId,
           'date': formattedDate,
+          'reason':reason,
         }),
       );
 

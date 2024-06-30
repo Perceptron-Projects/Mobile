@@ -11,8 +11,14 @@ class ViewWFHRequestsScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final attendanceController = ref.read(attendanceControllerProvider);
     final workFromHomeRequests = useState<List<Map<String, dynamic>>>([]);
-    final startDate = useState<DateTime>(DateTime.now().subtract(Duration(days: 30)));
-    final endDate = useState<DateTime>(DateTime.now());
+
+    // Calculate the start and end of the current week
+    final DateTime now = DateTime.now();
+    final DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final DateTime endOfWeek = now.add(Duration(days: DateTime.daysPerWeek - now.weekday));
+
+    final startDate = useState<DateTime>(startOfWeek);
+    final endDate = useState<DateTime>(endOfWeek);
     final isLoading = useState<bool>(true);
 
     Future<void> fetchWorkFromHomeRequests() async {
@@ -119,16 +125,37 @@ class WorkFromHomeRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Extracting and cleaning the reason
+    String reason = request.containsKey('reason') ? request['reason'] : 'No reason provided';
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        title: Text('Date: ${request['date']}'),
-        subtitle: Text('Status: ${request['status']}'),
-        trailing: request['status'] == 'approved'
-            ? Icon(Icons.check_circle, color: Colors.green)
-            : request['status'] == 'rejected'
-            ? Icon(Icons.cancel, color: Colors.red)
-            : Icon(Icons.hourglass_empty, color: Colors.orange),
+      child: Column(
+        children: [
+          ListTile(
+            title: Text('Date: ${request['date']}'),
+            subtitle: Text('Status: ${request['status']}'),
+            trailing: request['status'] == 'approved'
+                ? Icon(Icons.check_circle, color: Colors.green)
+                : request['status'] == 'rejected'
+                ? Icon(Icons.cancel, color: Colors.red)
+                : Icon(Icons.hourglass_empty, color: Colors.orange),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Reason: $reason',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.black54,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+        ],
       ),
     );
   }

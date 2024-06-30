@@ -80,6 +80,7 @@ class SupervisorWFHDashboardScreen extends HookConsumerWidget {
                     Text('Employee ID: ${request['employeeId']}'),
                     Text('Date: ${request['date']}'),
                     Text('Status: ${request['status']}'),
+                    Text('Reason: ${request['reason'] ?? 'No reason provided'}')
                   ],
                 ),
                 trailing: Row(
