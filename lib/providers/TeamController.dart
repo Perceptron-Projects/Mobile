@@ -66,11 +66,14 @@ class TeamController {
 
   }
 
+
+
   Future<void> updateTeam(String teamId, Team team) async {
     final token = await getAuthToken();
     if (token == null) {
       throw Exception('Token not found');
     }
+
 
     final response = await http.put(
       Uri.parse('${ApiClient.baseUrl}/api/users/team/$teamId'),
@@ -78,6 +81,7 @@ class TeamController {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
+
       body: json.encode({
         'teamName': team.teamName,
         'projectName': team.projectName,

@@ -11,7 +11,8 @@ import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/models/TeamMember.dart';
-import 'package:ams/components/CustomWidget.dart'; // Import the custom form field widget
+import 'package:ams/components/CustomWidget.dart';
+import 'package:http/http.dart' as http;// Import the custom form field widget
 
 class EditTeamScreen extends HookConsumerWidget {
   final Team team;
@@ -34,18 +35,35 @@ class EditTeamScreen extends HookConsumerWidget {
     final selectedImage = useState<File?>(null);
     final teamController = ref.read(teamControllerProvider);
 
+    Future<String> downloadImageAsBase64(String imageUrl) async {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        return 'data:image/png;base64,${base64Encode(response.bodyBytes)}';
+      } else {
+        throw Exception('Failed to download image');
+      }
+    }
+
     Future<void> updateTeam() async {
       if (_formKey.currentState!.validate()) {
+
+        String teamsImageBase64;
+        if (selectedImage.value != null) {
+          // A new image is selected
+          teamsImageBase64 = 'data:image/png;base64,${base64Encode(await selectedImage.value!.readAsBytes())}';
+        } else {
+          // No new image selected, download the existing image and convert to base64
+          teamsImageBase64 = await downloadImageAsBase64(team.teamsImage);
+        }
+
         final updatedTeam = Team(
           teamId: team.teamId, // Use the existing team ID
           teamName: teamNameController.text,
           projectName: projectNameController.text,
           supervisor: supervisorController.text,
           startDate: startDateController.text,
-          teamsImage: selectedImage.value != null
-              ? 'data:image/png;base64,${base64Encode(await selectedImage.value!.readAsBytes())}'
-              : team.teamsImage,
-          teamMembers: teamMembers.value.map((member) => member.email).toList(),
+          teamsImage: teamsImageBase64,
+          teamMembers: teamMembers.value.map((member) => member.userId).toList(),
         );
 
         try {
