@@ -79,7 +79,9 @@ class InsightsScreen extends HookConsumerWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
+      body:
+      SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(36.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -165,7 +167,7 @@ class InsightsScreen extends HookConsumerWidget {
             ),
           ],
         ),
-      ),
+      ),),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: 3,
         onTap: (index) async {

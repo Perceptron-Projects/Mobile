@@ -5,7 +5,6 @@ import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/ProfileController.dart';
 import 'package:ams/screens/welcome/Welcome.dart';
 import 'package:ams/screens/profile/EditProfile.dart';
-
 import '../../components/CustomWidget.dart';
 import '../home/Home.dart';
 import '../hr/CalenderManagement.dart';
@@ -72,11 +71,10 @@ class ProfileScreen extends HookConsumerWidget {
     final email = profileData['email'] ?? 'N/A';
 
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
-    final profilePhotoUrl = profileData['imageUrl']??'${defaultProfileImageUrl}';
+    final profilePhotoUrl = profileData['imageUrl'] ?? defaultProfileImageUrl;
 
     return Scaffold(
       appBar: AppBar(
-
         title: Text(
           'Profile',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -95,49 +93,55 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'General',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            CircleAvatar(
-              radius: 100,
-              backgroundImage: profilePhotoUrl != null
-                  ? NetworkImage(profilePhotoUrl)
-                  : AssetImage(defaultProfileImageUrl) as ImageProvider,
-            ),
-            SizedBox(height: 16),
-            ProfileInfoItem(
-              label: 'Name',
-              value: firstName+" "+lastName,
-            ),
-            ProfileInfoItem(
-              label: 'Employee ID',
-              value: userId,
-            ),
-            ProfileInfoItem(
-              label: 'Email',
-              value: email,
-            ),
-            ProfileInfoItem(
-              label: 'Contact No',
-              value: contactNo,
-            ),
-            ProfileInfoItem(
-              label: 'Birthday',
-              value: birthday,
-            ),
-            ProfileInfoItem(
-              label: 'Joined Date',
-              value: joinedDate,
-            ),
-            Spacer()
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'General',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              CircleAvatar(
+                radius: 100,
+                backgroundImage: profilePhotoUrl != null
+                    ? NetworkImage(profilePhotoUrl)
+                    : AssetImage(defaultProfileImageUrl) as ImageProvider,
+              ),
+              SizedBox(height: 16),
+              ProfileInfoItem(
+                label: 'Name',
+                value: firstName + " " + lastName,
+              ),
+              ProfileInfoItem(
+                label: 'Employee ID',
+                value: userId,
+              ),
+              ProfileInfoItem(
+                label: 'Email',
+                value: email,
+              ),
+              ProfileInfoItem(
+                label: 'Contact No',
+                value: contactNo,
+              ),
+              ProfileInfoItem(
+                label: 'Birthday',
+                value: birthday,
+              ),
+              ProfileInfoItem(
+                label: 'Joined Date',
+                value: joinedDate,
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: handleLogout,
+                child: Text('Logout'),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
@@ -158,14 +162,12 @@ class ProfileScreen extends HookConsumerWidget {
               context,
               MaterialPageRoute(builder: (context) => CalendarScreen()),
             );
-          }
-          else if (index == 3) {
+          } else if (index == 3) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => InsightsScreen()),
             );
-          }
-          else if (index == 4) {
+          } else if (index == 4) {
             // Handle logout
             await ref.read(profileControllerProvider).logout();
             Navigator.pushAndRemoveUntil(
