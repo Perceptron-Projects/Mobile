@@ -4,8 +4,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/teamController.dart';
+import 'package:ams/providers/AuthController.dart';
 import 'package:ams/models/Team.dart';
 import 'package:ams/screens/teams/TeamDetails.dart';
+
+final authControllerProvider = Provider((ref) => AuthController());
 
 class ViewTeamsScreen extends HookConsumerWidget {
   @override
@@ -14,14 +17,23 @@ class ViewTeamsScreen extends HookConsumerWidget {
     final teams = useState<List<Team>>([]);
     final isLoading = useState<bool>(true);
     final userId = useState<String?>('');
+    final authController = ref.read(authControllerProvider);
 
     final storage = FlutterSecureStorage();
+    final userRoles = useState<List<String>>([]);
+
 
     useEffect(() {
-      Future<void> fetchTeams() async {
+      Future<void> initialize() async {
         try {
           userId.value = await storage.read(key: 'userId');
-          teams.value = await teamController.getTeamsForEmployee(userId.value ?? '');
+          userRoles.value = await authController.getRoles() ?? [];
+
+          if (userRoles.value.contains('hr')) {
+            teams.value = await teamController.getAllTeams();
+          } else {
+            teams.value = await teamController.getTeamsForEmployee(userId.value ?? '');
+          }
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to fetch teams')),
@@ -31,7 +43,8 @@ class ViewTeamsScreen extends HookConsumerWidget {
         }
       }
 
-      fetchTeams();
+      initialize();
+
       return null;
     }, []);
 
