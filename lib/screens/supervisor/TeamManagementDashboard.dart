@@ -18,6 +18,9 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
 
     final storage = FlutterSecureStorage();
 
+
+
+
     Future<void> fetchTeams() async {
       try {
         userId.value = await storage.read(key: 'userId');
@@ -26,6 +29,19 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
         print('Error fetching teams: $e');
       } finally {
         isLoading.value = false;
+      }
+    }
+
+    Future<void> navigateToCreateTeamScreen() async {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CreateTeamScreen()),
+      );
+
+      // Check the result
+      if (result == true) {
+        // If a new team was created, refresh the list of teams
+        fetchTeams();
       }
     }
 
@@ -128,12 +144,7 @@ class TeamManagementDashboardScreen extends HookConsumerWidget {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(36.0), // Adjust the padding as needed
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CreateTeamScreen()),
-            );
-          },
+          onPressed: navigateToCreateTeamScreen,
           child: Icon(Icons.add),
           backgroundColor: AppColors.buttonColor,
           foregroundColor: Colors.white, // Set the color of the + icon

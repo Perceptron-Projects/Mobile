@@ -62,6 +62,8 @@ class TeamController {
     if (response.statusCode != 200) {
       throw Exception('Failed to create team');
     }
+
+
   }
 
   Future<void> updateTeam(String teamId, Team team) async {
