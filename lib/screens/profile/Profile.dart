@@ -16,16 +16,29 @@ class ProfileScreen extends HookConsumerWidget {
     final profile = useState<Map<String, dynamic>?>(null);
     final isLoading = useState(true);
     final errorMessage = useState<String?>(null);
+    final isProfileUpdated = useState(false);
 
     useEffect(() {
-      ref.read(profileControllerProvider).getProfile().then((data) {
-        profile.value = data;
-        isLoading.value = false;
-      }).catchError((error) {
-        errorMessage.value = error.toString();
-        isLoading.value = false;
-      });
-    }, []);
+      if (isProfileUpdated.value) {
+        ref.read(profileControllerProvider).getProfile().then((data) {
+          profile.value = data;
+          isLoading.value = false;
+          isProfileUpdated.value = false; // Reset the flag
+        }).catchError((error) {
+          errorMessage.value = error.toString();
+          isLoading.value = false;
+          isProfileUpdated.value = false; // Reset the flag
+        });
+      } else {
+        ref.read(profileControllerProvider).getProfile().then((data) {
+          profile.value = data;
+          isLoading.value = false;
+        }).catchError((error) {
+          errorMessage.value = error.toString();
+          isLoading.value = false;
+        });
+      }
+    }, [isProfileUpdated.value]);
 
     Future<void> handleLogout() async {
       await ref.read(profileControllerProvider).logout();
@@ -73,6 +86,8 @@ class ProfileScreen extends HookConsumerWidget {
     final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
     final profilePhotoUrl = profileData['imageUrl'] ?? defaultProfileImageUrl;
 
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -86,7 +101,13 @@ class ProfileScreen extends HookConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(profileData: profileData),
+                  builder: (context) => EditProfileScreen(
+                    profileData: profileData,
+                    onProfileUpdated: (updatedProfile) {
+                      profile.value = updatedProfile;
+                      isProfileUpdated.value = true; // Set the flag
+                    },
+                  ),
                 ),
               );
             },
@@ -106,7 +127,7 @@ class ProfileScreen extends HookConsumerWidget {
               SizedBox(height: 16),
               CircleAvatar(
                 radius: 100,
-                backgroundImage: profilePhotoUrl != null
+                backgroundImage: profilePhotoUrl.isNotEmpty
                     ? NetworkImage(profilePhotoUrl)
                     : AssetImage(defaultProfileImageUrl) as ImageProvider,
               ),

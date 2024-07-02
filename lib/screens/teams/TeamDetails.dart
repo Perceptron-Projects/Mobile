@@ -1,3 +1,4 @@
+import 'package:ams/screens/userDetails/GeneralUserDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -157,11 +158,18 @@ class TeamDetailsScreen extends HookConsumerWidget {
                         return user != null
                             ? GestureDetector(
                           onTap: () {
-                            if (userRoles.value.contains('supervisor') || userRoles.value.contains('hr')) {
+                            if (userRoles.value.contains('supervisor')) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AdvancedUserDetailsScreen(userId: memberId),
+                                ),
+                              );
+                            } else if (userRoles.value.contains('hr')){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GeneralUserDetailsScreen(userId: memberId),
                                 ),
                               );
                             }

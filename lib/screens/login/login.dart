@@ -16,8 +16,6 @@ class LoginScreen extends HookConsumerWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  useProvider(Provider<AuthController> authControllerProvider) {}
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<bool> isLoading = useState(false);
@@ -26,8 +24,7 @@ class LoginScreen extends HookConsumerWidget {
 
     return Scaffold(
       body: Background(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Card(
@@ -57,12 +54,9 @@ class LoginScreen extends HookConsumerWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CustomWidgets.buildEmailTextField(
-                              emailController
-                          ),
+                          CustomWidgets.buildEmailTextField(emailController),
                           SizedBox(height: 24.0),
-                          CustomWidgets.buildPasswordTextField(
-                              passwordController),
+                          CustomWidgets.buildPasswordTextField(passwordController),
                           Container(
                             alignment: Alignment.centerRight,
                             child: TextButton(
@@ -85,26 +79,21 @@ class LoginScreen extends HookConsumerWidget {
                           SizedBox(height: 24.0),
                           ElevatedButton(
                             onPressed: isLoading.value ? null : () async {
-                              final ValueNotifier<String> email = emailController.text != ""
-                                  ? ValueNotifier<String>(emailController.text)
-                                  : ValueNotifier<String>('');
-                              final ValueNotifier<String> password = passwordController.text != ""
-                                  ? ValueNotifier<String>(passwordController.text)
-                                  : ValueNotifier<String>('');
+                              final email = emailController.text;
+                              final password = passwordController.text;
 
                               isLoading.value = true;
 
                               try {
-                                await ref
-                                    .read(authControllerProvider)
-                                    .signIn(email.value, password.value);
+                                await ref.read(authControllerProvider).signIn(email, password);
 
-                                Navigator.push(context,
+                                Navigator.push(
+                                  context,
                                   MaterialPageRoute(builder: (context) => HomePageScreen()),
                                 );
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Invaild Email or Password!")),
+                                  SnackBar(content: Text("Invalid Email or Password!")),
                                 );
                               } finally {
                                 isLoading.value = false;
@@ -115,10 +104,10 @@ class LoginScreen extends HookConsumerWidget {
                                 borderRadius: BorderRadius.circular(80.0),
                               ),
                               backgroundColor: AppColors.buttonColor,
-                              fixedSize:
-                              ui.Size(size.width * 0.3, size.width * 0.125),
+                              fixedSize: Size(size.width * 0.3, size.width * 0.125),
                             ),
-                            child: isLoading.value ? const SizedBox(
+                            child: isLoading.value
+                                ? const SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(

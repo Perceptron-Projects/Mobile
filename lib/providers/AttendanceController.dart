@@ -134,6 +134,57 @@ class AttendanceController {
     return attendanceRecords;
   }
 
+  Future<List<Map<String, dynamic>>> getAttendanceForAParticularUser(
+      DateTime startDate, DateTime endDate, String employeeId) async {
+    String? token = await storage.read(key: 'token');
+    String? companyId = await storage.read(key: 'companyId');
+
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    final response = await http.get(
+      Uri.parse(
+        '${ApiClient.baseUrl}/api/users/attendance/getByDateRange?startDate=${startDate.toIso8601String()}&endDate=${endDate.toIso8601String()}&employeeId=$employeeId&companyId=$companyId',
+      ),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch attendance records');
+    }
+
+    final data = json.decode(response.body);
+
+    if (data['attendanceRecords'] == null) {
+      throw Exception('No attendance records found');
+    }
+
+    List<Map<String, dynamic>> attendanceRecords = List<Map<String, dynamic>>.from(data['attendanceRecords']);
+
+    // Filter out any records where 'date' is null or not a string
+    attendanceRecords = attendanceRecords.where((record) => record['date'] != null && record['date'] is String).toList();
+
+    // Ensure all bool fields are non-null
+    attendanceRecords = attendanceRecords.map((record) {
+      record['isCheckedIn'] = record['isCheckedIn'] ?? false;
+      record['isCheckedOut'] = record['isCheckedOut'] ?? false;
+      record['isWorkFromHome'] = record['isWorkFromHome'] ?? false;
+      return record;
+    }).toList();
+
+    // Sort the attendance records by date
+    attendanceRecords.sort((a, b) {
+      DateTime dateA = DateTime.parse(a['date']);
+      DateTime dateB = DateTime.parse(b['date']);
+      return dateB.compareTo(dateA);
+    });
+
+    return attendanceRecords;
+  }
 
   Future<void> sendWorkFromHomeRequest(DateTime date,String reason) async {
       String? employeeId = await storage.read(key: 'userId');

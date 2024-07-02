@@ -1,4 +1,6 @@
+import 'package:ams/screens/attendance/EmployeeList.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/components/Background.dart';
@@ -10,14 +12,19 @@ import 'package:ams/screens/profile/Profile.dart';
 import 'package:ams/screens/home/Home.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/providers/authController.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final authControllerProvider = Provider((ref) => AuthController());
 
 class AttendanceDashboardScreen extends ConsumerWidget {
+  final String companyId;
+
+  AttendanceDashboardScreen({required this.companyId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authController = ref.read(authControllerProvider);
+
 
     Future<List<String>> getUserRoles() async {
       try {
@@ -78,7 +85,7 @@ class AttendanceDashboardScreen extends ConsumerWidget {
                       ),
                       SizedBox(height: 30),
                       buildNavButton(
-                        ' View Attendance',
+                        ' View My Attendance',
                         Icons.visibility,
                         ViewAttendanceScreen(),
                         navigateToScreen,
@@ -96,6 +103,14 @@ class AttendanceDashboardScreen extends ConsumerWidget {
                           ' Work From Home Requests',
                           Icons.person,
                           SupervisorWFHDashboardScreen(),
+                          navigateToScreen,
+                        ),
+                      SizedBox(height: 30),
+                      if (userRoles.contains('hr') || userRoles.contains('supervisor'))
+                        buildNavButton(
+                          ' Attendance of employees',
+                          Icons.record_voice_over,
+                          EmployeeListScreen(companyId: companyId),
                           navigateToScreen,
                         ),
                     ],

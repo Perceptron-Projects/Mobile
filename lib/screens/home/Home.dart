@@ -41,7 +41,7 @@ class HomePageScreen extends HookConsumerWidget {
           var userProfile = await ref.read(profileControllerProvider).getProfile();
           if (userProfile != null) {
             firstName.value = userProfile['firstName']; // Update the state with the first name
-            profileImage.value = userProfile['imageUrl']??'${defaultProfileImageUrl}';// Update the state with the profile image
+            profileImage.value = userProfile['imageUrl'] ?? defaultProfileImageUrl; // Update the state with the profile image
             userRoles.value = await ref.read(authControllerProvider).getRoles() ?? [];
             companyId.value = await storage.read(key: 'companyId');
             userId.value = await storage.read(key: 'userId');
@@ -154,21 +154,14 @@ class HomePageScreen extends HookConsumerWidget {
                               ),
                             ],
                           ),
-                          profileImage.value != null
-                              ? GestureDetector(
+                          GestureDetector(
                             onTap: () => navigateToScreen(ProfileScreen()),
                             child: CircleAvatar(
                               radius: 30,
-                              backgroundImage: NetworkImage(profileImage.value!),
+                              backgroundImage: (profileImage.value != null && profileImage.value!.isNotEmpty)
+                                  ? NetworkImage(profileImage.value!)
+                                  : AssetImage(defaultProfileImageUrl) as ImageProvider,
                               backgroundColor: Colors.grey,
-                            ),
-                          )
-                              : GestureDetector(
-                            onTap: () => navigateToScreen(ProfileScreen()),
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.grey,
-                              child: Icon(Icons.person, color: Colors.white),
                             ),
                           ),
                         ],
@@ -193,7 +186,7 @@ class HomePageScreen extends HookConsumerWidget {
                         buildNavButton(
                           'Attendance',
                           Icons.access_time,
-                          AttendanceDashboardScreen(),
+                          AttendanceDashboardScreen(companyId: companyId.value ?? 'e3580212-0428-45f1-bc07-69fe179dabdf'),
                           navigateToScreen,
                         ),
                         buildNavButton(

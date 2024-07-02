@@ -4,7 +4,7 @@ import 'package:ams/constants/AppFontsSize.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/models/Team.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
+
 
 typedef Validator = String? Function(String?);
 
@@ -274,6 +274,13 @@ class AttendanceRecordWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final checkInTime = record['checkIn'] != null
+        ? DateFormat.Hm().format(DateTime.parse(record['checkIn']))
+        : 'N/A';
+    final checkOutTime = record['checkOut'] != null
+        ? DateFormat.Hm().format(DateTime.parse(record['checkOut']))
+        : 'N/A';
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Padding(
@@ -293,6 +300,8 @@ class AttendanceRecordWidget extends StatelessWidget {
                       record['isCheckedIn'] ? Icons.check_circle : Icons.cancel,
                       color: record['isCheckedIn'] ? Colors.green : Colors.red,
                     ),
+                    SizedBox(width: 5),
+                    Text(checkInTime),
                   ],
                 ),
                 Row(
@@ -302,6 +311,8 @@ class AttendanceRecordWidget extends StatelessWidget {
                       record['isCheckedOut'] ? Icons.check_circle : Icons.cancel,
                       color: record['isCheckedOut'] ? Colors.green : Colors.red,
                     ),
+                    SizedBox(width: 5),
+                    Text(checkOutTime),
                   ],
                 ),
               ],

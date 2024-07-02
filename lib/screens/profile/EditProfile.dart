@@ -8,10 +8,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/ProfileController.dart';
 
+
+
 class EditProfileScreen extends HookConsumerWidget {
   final Map<String, dynamic> profileData;
 
-  EditProfileScreen({required this.profileData});
+  final Function(Map<String, dynamic>) onProfileUpdated;
+
+  EditProfileScreen({required this.profileData, required this.onProfileUpdated}); // Update constructor
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,6 +69,7 @@ class EditProfileScreen extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Profile updated successfully'),
         ));
+        onProfileUpdated(updatedProfile);
         Navigator.pop(context, updatedProfile);
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
