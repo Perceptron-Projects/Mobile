@@ -179,17 +179,17 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
               : '0',
         ),
         buildInfoRow(
-          'Full Day Leaves',
+          'Annual Leaves',
           Icons.work,
-          leaveData.containsKey('leaveTypes') && leaveData['leaveTypes'].containsKey('fullDay')
-              ? leaveData['leaveTypes']['fullDay'].toString()
+          leaveData.containsKey('leaveTypes') && leaveData['leaveTypes'].containsKey('annual')
+              ? leaveData['leaveTypes']['annual'].toString()
               : '0',
         ),
         buildInfoRow(
-          'Half Day Leaves',
+          'Liue Leaves',
           Icons.access_time,
-          leaveData.containsKey('leaveTypes') && leaveData['leaveTypes'].containsKey('halfDay')
-              ? leaveData['leaveTypes']['halfDay'].toString()
+          leaveData.containsKey('leaveTypes') && leaveData['leaveTypes'].containsKey('liue')
+              ? leaveData['leaveTypes']['liue'].toString()
               : '0',
         ),
       ],
@@ -243,14 +243,14 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
           leaveData['remainingLeaves'] != null ? leaveData['remainingLeaves']['medical'].toString() : '0',
         ),
         buildLeaveInfoRow(
-          'Full Day',
+          'Annual',
           Icons.calendar_today,
-          leaveData['remainingLeaves'] != null ? leaveData['remainingLeaves']['fullDay'].toString() : '0',
+          leaveData['remainingLeaves'] != null ? leaveData['remainingLeaves']['annual'].toString() : '0',
         ),
         buildLeaveInfoRow(
-          'Half Day',
+          'Liue',
           Icons.access_time,
-          leaveData['remainingLeaves'] != null ? leaveData['remainingLeaves']['halfDay'].toString() : '0',
+          leaveData['remainingLeaves'] != null ? leaveData['remainingLeaves']['liue'].toString() : '0',
         )
       ],
     );

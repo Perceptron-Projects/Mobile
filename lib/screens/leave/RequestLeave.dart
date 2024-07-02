@@ -76,7 +76,7 @@ class RequestLeaveScreen extends HookConsumerWidget {
                     onChanged: (String? newValue) {
                       leaveType.value = newValue!;
                     },
-                    items: <String>['casual', 'fullDay', 'halfDay', 'medical']
+                    items: <String>['casual', 'liue', 'annual', 'medical']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
