@@ -28,6 +28,8 @@ class CalendarScreen extends HookConsumerWidget {
     final userId = useState<String?>(null);
     final userRoles = useState<List<String>>([]);
 
+
+
     Future<void> fetchHolidays() async {
       try {
         final holidayList = await holidayController.getHolidays();
@@ -160,7 +162,7 @@ class CalendarScreen extends HookConsumerWidget {
                         onTap: () async {
                           DateTimeRange? pickedRange = await showDateRangePicker(
                             context: context,
-                            firstDate: DateTime(2020),
+                            firstDate: DateTime.now(),
                             lastDate: DateTime(2030),
                           );
                           if (pickedRange != null) {

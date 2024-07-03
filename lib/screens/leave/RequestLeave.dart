@@ -97,8 +97,7 @@ class RequestLeaveScreen extends HookConsumerWidget {
                     onTap: () async {
                       final selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
+                        firstDate: DateTime.now(),
                         lastDate: DateTime(2101),
                       );
                       if (selectedDate != null) {
@@ -114,8 +113,7 @@ class RequestLeaveScreen extends HookConsumerWidget {
                     onTap: () async {
                       final selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
+                        firstDate: DateTime.now(),
                         lastDate: DateTime(2101),
                       );
                       if (selectedDate != null) {

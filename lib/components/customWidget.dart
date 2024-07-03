@@ -491,64 +491,88 @@ class LeaveApprovalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: ListTile(
-        leading: Icon(_getStatusIcon(leaveRequest['status']), color: Colors.blue),
-        title: Text(
-          '${leaveRequest['leaveType'].toString().toUpperCase()} Leave',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.person, size: 16.0),
-                SizedBox(width: 4.0),
-                Text('${leaveRequest['firstName']} ${leaveRequest['lastName']}'),
-              ],
+            ListTile(
+              leading: Icon(_getStatusIcon(leaveRequest['status']), color: Colors.blue),
+              title: Text(
+                '${leaveRequest['leaveType'].toString().toUpperCase()} Leave',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.green, // Background color for approve button
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.check, color: Colors.white),
+                      onPressed: onApprove,
+                    ),
+                  ),
+                  SizedBox(width: 8), // Add some space between buttons
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.red, // Background color for reject button
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.cancel, color: Colors.white),
+                      onPressed: onReject,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Row(
-              children: [
-                Icon(Icons.badge, size: 16.0),
-                SizedBox(width: 4.0),
-                Text('Employee ID: ${leaveRequest['employeeId']}'),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 16.0),
-                SizedBox(width: 4.0),
-                Text('Start Date: ${leaveRequest['startDate']}'),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 16.0),
-                SizedBox(width: 4.0),
-                Text('End Date: ${leaveRequest['endDate']}'),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.note, size: 16.0),
-                SizedBox(width: 4.0),
-                Expanded(child: Text('Reason: ${leaveRequest['reason']}')),
-              ],
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.check, color: Colors.green),
-              onPressed: onApprove,
-            ),
-            IconButton(
-              icon: Icon(Icons.cancel, color: Colors.red),
-              onPressed: onReject,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Expanded(child: Text('${leaveRequest['firstName']} ${leaveRequest['lastName']}')),
+                      SizedBox(width: 16.0),
+                      Icon(Icons.badge, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Expanded(child: Text('Employee ID: ${leaveRequest['employeeId']}')),
+                    ],
+                  ),
+                  SizedBox(height: 8.0),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Expanded(child: Text('From: ${leaveRequest['startDate']}')),
+                      SizedBox(width: 16.0),
+                      Icon(Icons.calendar_today, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Expanded(child: Text('To: ${leaveRequest['endDate']}')),
+                    ],
+                  ),
+                  SizedBox(height: 8.0),
+                  Row(
+                    children: [
+                      Icon(Icons.note, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Expanded(child: Text('Reason: ${leaveRequest['reason']}')),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -556,6 +580,8 @@ class LeaveApprovalTile extends StatelessWidget {
     );
   }
 }
+
+
 
 class LeaveCountsGrid extends StatelessWidget {
   final Map<String, dynamic> leaveCounts;
@@ -608,9 +634,9 @@ class LeaveCountsGrid extends StatelessWidget {
         return Icons.local_hospital;
       case 'casual':
         return Icons.beach_access;
-      case 'fullDay':
+      case 'liue':
         return Icons.work;
-      case 'halfDay':
+      case 'annual':
         return Icons.access_time;
       default:
         return Icons.calendar_today;

@@ -9,6 +9,8 @@ class SupervisorWFHDashboardScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = useState(false);
     final workFromHomeRequests = useState<List<Map<String, dynamic>>>([]);
+    final searchController = useTextEditingController();
+    final filteredRequests = useState<List<Map<String, dynamic>>>([]);
 
     Future<void> fetchRequests() async {
       isLoading.value = true;
@@ -21,6 +23,7 @@ class SupervisorWFHDashboardScreen extends HookConsumerWidget {
           return dateB.compareTo(dateA);
         });
         workFromHomeRequests.value = requests;
+        filteredRequests.value = requests;
       } catch (e) {
         print('Error fetching work from home requests: $e');
       } finally {
@@ -68,66 +71,106 @@ class SupervisorWFHDashboardScreen extends HookConsumerWidget {
           : SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          children: workFromHomeRequests.value.map((request) {
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-              child: ListTile(
-                leading: _getStatusIcon(request['status']),
-                title: Text('Employee Name: ${request['employeeName']}'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Employee ID: ${request['employeeId']}'),
-                    Text('Date: ${request['date']}'),
-                    Text('Status: ${request['status']}'),
-                    Text('Reason: ${request['reason'] ?? 'No reason provided'}')
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.green, // Background color for approve button
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.check, color: Colors.white),
-                        onPressed: () {
-                          updateRequestStatus(
-                              request['employeeId'],
-                              request['companyId'],
-                              DateTime.parse(request['date']),
-                              'approved');
-                        },
-                      ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0,horizontal: 32),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search by Name or Employee ID',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(32.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(32.0),
+                    borderSide: BorderSide(
+                      color: Colors.grey, // Change this color as needed
+                      width: 1.0,
                     ),
-                    SizedBox(width: 8), // Add some space between buttons
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.red, // Background color for reject button
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.cancel, color: Colors.white),
-                        onPressed: () {
-                          updateRequestStatus(
-                              request['employeeId'],
-                              request['companyId'],
-                              DateTime.parse(request['date']),
-                              'rejected');
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () {
+                      final query = searchController.text.toLowerCase();
+                      filteredRequests.value = workFromHomeRequests.value.where((request) {
+                        final name = request['employeeName'].toString().toLowerCase();
+                        final employeeId = request['employeeId'].toString().toLowerCase();
+                        return name.contains(query) || employeeId.contains(query);
+                      }).toList();
+                    },
+                  ),
                 ),
+                onChanged: (value) {
+                  final query = value.toLowerCase();
+                  filteredRequests.value = workFromHomeRequests.value.where((request) {
+                    final name = request['employeeName'].toString().toLowerCase();
+                    final employeeId = request['employeeId'].toString().toLowerCase();
+                    return name.contains(query) || employeeId.contains(query);
+                  }).toList();
+                },
               ),
-            );
-          }).toList(),
+            ),
+            ...filteredRequests.value.map((request) {
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                child: ListTile(
+                  leading: _getStatusIcon(request['status']),
+                  title: Text('Employee Name: ${request['employeeName']}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Employee ID: ${request['employeeId']}'),
+                      Text('Date: ${request['date']}'),
+                      Text('Status: ${request['status']}'),
+                      Text('Reason: ${request['reason'] ?? 'No reason provided'}')
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.green, // Background color for approve button
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.check, color: Colors.white),
+                          onPressed: () {
+                            updateRequestStatus(
+                                request['employeeId'],
+                                request['companyId'],
+                                DateTime.parse(request['date']),
+                                'approved');
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8), // Add some space between buttons
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.red, // Background color for reject button
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.cancel, color: Colors.white),
+                          onPressed: () {
+                            updateRequestStatus(
+                                request['employeeId'],
+                                request['companyId'],
+                                DateTime.parse(request['date']),
+                                'rejected');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
         ),
       ),
     );

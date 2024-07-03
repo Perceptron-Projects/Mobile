@@ -70,7 +70,7 @@ class ViewAttendanceForParticularUser extends HookConsumerWidget {
                       final picked = await showDateRangePicker(
                         context: context,
                         firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
+                        lastDate: DateTime.now(),
                         initialDateRange: DateTimeRange(
                           start: startDate.value,
                           end: endDate.value,

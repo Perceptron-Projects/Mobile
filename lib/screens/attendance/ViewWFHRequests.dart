@@ -12,6 +12,8 @@ class ViewWFHRequestsScreen extends HookConsumerWidget {
     final attendanceController = ref.read(attendanceControllerProvider);
     final workFromHomeRequests = useState<List<Map<String, dynamic>>>([]);
 
+
+
     // Calculate the start and end of the current week
     final DateTime now = DateTime.now();
     final DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));

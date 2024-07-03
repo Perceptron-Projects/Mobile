@@ -3,15 +3,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/appColors.dart';
 import 'package:ams/providers/leaveController.dart';
-import 'package:ams/components/CustomWidget.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ams/components/CustomWidget.dart';
 
 class HRReviewLeaveRequestsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final leaveController = ref.read(leaveControllerProvider);
     final leaveRequests = useState<List<Map<String, dynamic>>>([]);
+    final filteredLeaveRequests = useState<List<Map<String, dynamic>>>([]);
     final isLoading = useState<bool>(true);
+    final searchController = useTextEditingController();
 
     Future<void> fetchPendingLeaveRequests() async {
       final storage = FlutterSecureStorage();
@@ -26,6 +28,7 @@ class HRReviewLeaveRequestsScreen extends HookConsumerWidget {
 
       try {
         leaveRequests.value = await leaveController.getPendingLeaveRequests(companyId);
+        filteredLeaveRequests.value = leaveRequests.value;
       } catch (e) {
         // Handle the error
         print(e);
@@ -53,6 +56,15 @@ class HRReviewLeaveRequestsScreen extends HookConsumerWidget {
       return null;
     }, []);
 
+    void filterRequests(String query) {
+      final filtered = leaveRequests.value.where((request) {
+        final employeeName = request['employeeName'].toString().toLowerCase();
+        final employeeId = request['employeeId'].toString().toLowerCase();
+        return employeeName.contains(query) || employeeId.contains(query);
+      }).toList();
+      filteredLeaveRequests.value = filtered;
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -64,28 +76,56 @@ class HRReviewLeaveRequestsScreen extends HookConsumerWidget {
         ),
       ),
       body: isLoading.value
-          ? Center(
-        child: CircularProgressIndicator(),
-      )
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
-            children: leaveRequests.value.map((leaveRequest) {
-              return LeaveApprovalTile(
-                leaveRequest: leaveRequest,
-                onApprove: () => updateLeaveRequestStatus(
-                  leaveRequest['leaveId'],
-                  'approved',
-                  leaveRequest['createdAt'],
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 32),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Search by Name or Employee ID',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32.0),
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        filterRequests(searchController.text.toLowerCase());
+                      },
+                    ),
+                  ),
+                  onChanged: (value) {
+                    filterRequests(value.toLowerCase());
+                  },
                 ),
-                onReject: () => updateLeaveRequestStatus(
-                  leaveRequest['leaveId'],
-                  'rejected',
-                  leaveRequest['createdAt'],
-                ),
-              );
-            }).toList(),
+              ),
+              ...filteredLeaveRequests.value.map((leaveRequest) {
+                return LeaveApprovalTile(
+                  leaveRequest: leaveRequest,
+                  onApprove: () => updateLeaveRequestStatus(
+                    leaveRequest['leaveId'],
+                    'approved',
+                    leaveRequest['createdAt'],
+                  ),
+                  onReject: () => updateLeaveRequestStatus(
+                    leaveRequest['leaveId'],
+                    'rejected',
+                    leaveRequest['createdAt'],
+                  ),
+                );
+              }).toList(),
+            ],
           ),
         ),
       ),
