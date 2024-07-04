@@ -23,6 +23,8 @@ class InsightsScreen extends HookConsumerWidget {
     final isLoading = useState(true);
     final errorMessage = useState<String?>(null);
     final currentDate = useState(DateTime.now());
+    DateTime nextWeekStart = insightsController.getStartOfWeek(currentDate.value).add(Duration(days: 7));
+
 
     Future<void> fetchData(DateTime startDate, DateTime endDate) async {
       isLoading.value = true;
@@ -101,7 +103,7 @@ class InsightsScreen extends HookConsumerWidget {
                 ),
                 IconButton(
                   icon: Icon(Icons.arrow_forward),
-                  onPressed: () {
+                  onPressed: nextWeekStart.isAfter(DateTime.now()) ? null : () {
                     currentDate.value = currentDate.value.add(Duration(days: 7));
                   },
                 ),
@@ -127,42 +129,45 @@ class InsightsScreen extends HookConsumerWidget {
                     _buildTile('Negative Hours', '${processedData['totalNegativeHours']}'),
                   ],
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.height * 0.12,
-                  height: MediaQuery.of(context).size.height * 0.12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xff23b6e6),
-                        const Color(0xff02d39a),
+                AspectRatio(
+                  aspectRatio: 3,  // Ensures the widget is always a square
+                  child: Container(
+                    width: MediaQuery.of(context).size.height * 0.12,
+                    height: MediaQuery.of(context).size.height * 0.12,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xff23b6e6),
+                          const Color(0xff02d39a),
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Average',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          '${processedData['averageActivity']}%',
+                          style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Activity',
+                          style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   ),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Average',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        '${processedData['averageActivity']}%',
-                        style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Activity',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
+                )
               ],
             ),
           ],
@@ -213,24 +218,40 @@ class InsightsScreen extends HookConsumerWidget {
     return Card(
       margin: EdgeInsets.all(8.0),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              value,
-              style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(fontSize: 18),
-            ),
-          ],
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+        child: LayoutBuilder(  // Use LayoutBuilder to get available space
+          builder: (context, constraints) {
+            // Calculate dynamic font size based on available width
+            double fontSize = constraints.maxWidth * 0.3;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: fontSize > 42 ? 42 : fontSize, // Cap the font size at 42
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: fontSize > 18 ? 18 : fontSize * 0.5, // Smaller font size for the title
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+
+
 
   LineChartData mainData(Map<String, dynamic> processedData) {
     List<Color> gradientColors = [

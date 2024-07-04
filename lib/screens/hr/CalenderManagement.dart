@@ -27,8 +27,27 @@ class CalendarScreen extends HookConsumerWidget {
     final isLoading = useState<bool>(false);
     final userId = useState<String?>(null);
     final userRoles = useState<List<String>>([]);
+    final focusedDay = useState<DateTime>(DateTime.now());
+    final lastSelectedDay = useState<DateTime?>(null);
+
+    bool isSameMonth(DateTime date1, DateTime date2) {
+      return date1.year == date2.year && date1.month == date2.month;
+    }
+
+    useEffect(() {
+      if (lastSelectedDay.value != null && !isSameMonth(lastSelectedDay.value!, focusedDay.value)) {
+        focusedDay.value = lastSelectedDay.value!;
+      }
+      return null; // Dispose logic if necessary
+    }, [lastSelectedDay.value]); // This will trigger the effect only when lastSelectedDay changes
 
 
+    onDaySelected(DateTime selectedDay, DateTime focusDay) {
+      if (!isSameMonth(selectedDay, focusDay)) {
+        focusedDay.value = selectedDay; // Update the focused month
+      }
+      selectedDate.value = selectedDay; // Update selected date
+    }
 
     Future<void> fetchHolidays() async {
       try {
@@ -402,6 +421,9 @@ class CalendarScreen extends HookConsumerWidget {
       return holidays.value[DateTime.utc(day.year, day.month, day.day)] ?? [];
     }
 
+
+
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -414,7 +436,7 @@ class CalendarScreen extends HookConsumerWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
           child: Center(
             child: Container(
               width: double.infinity,
@@ -440,20 +462,23 @@ class CalendarScreen extends HookConsumerWidget {
                       children: [
                         Center(
                           child: TableCalendar(
-                            focusedDay: DateTime.now(),
+                            focusedDay: focusedDay.value,
                             firstDay: DateTime.utc(2020, 1, 1),
                             lastDay: DateTime.utc(2030, 12, 31),
                             eventLoader: _getEventsForDay,
-                            onDaySelected: (selectedDay, focusedDay) {
-                              selectedDate.value = selectedDay;
+                            selectedDayPredicate: (day) => isSameDay(selectedDate.value, day),
+                            onDaySelected: (selectedDay, focusDay) {
+                              lastSelectedDay.value = selectedDay; // Store selected day to be processed in useEffect
+                              selectedDate.value = selectedDay; // Update selected date
                             },
+
                             calendarStyle: CalendarStyle(
                               todayDecoration: BoxDecoration(
                                 color: Colors.green,
                                 shape: BoxShape.circle,
                               ),
                               selectedDecoration: BoxDecoration(
-                                color: Colors.yellow,
+                                color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
                               markerDecoration: BoxDecoration(
@@ -464,7 +489,7 @@ class CalendarScreen extends HookConsumerWidget {
                                 color: Colors.yellow,
                               ),
                               selectedTextStyle: TextStyle(
-                                color: Colors.amber,
+                                color: Colors.white,
                               ),
                             ),
                             headerStyle: HeaderStyle(
