@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -54,8 +55,9 @@ class CalendarScreen extends HookConsumerWidget {
         final holidayList = await holidayController.getHolidays();
         final Map<DateTime, List<Map<String, dynamic>>> holidayMap = {};
         for (var holiday in holidayList) {
-          final startDate = DateTime.parse(holiday['start']);
-          final endDate = DateTime.parse(holiday['end']);
+
+          final startDate = DateTime.parse(holiday['start'].substring(0, 10));
+          final endDate = DateTime.parse(holiday['end'].substring(0, 10));
           for (var date = startDate;
           date.isBefore(endDate.add(Duration(days: 1)));
           date = date.add(Duration(days: 1))) {
@@ -176,29 +178,53 @@ class CalendarScreen extends HookConsumerWidget {
                     children: [
                       TextField(
                         controller: startController,
-                        decoration: InputDecoration(labelText: 'Start Date'),
+                        decoration: InputDecoration(labelText: 'Start Date and Time'),
                         readOnly: true,
                         onTap: () async {
-                          DateTimeRange? pickedRange = await showDateRangePicker(
+                          final date = await showDatePicker(
                             context: context,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2030),
+                            initialDate: focusedDay.value,
+                            firstDate: focusedDay.value,
+                            lastDate: DateTime(2100),
                           );
-                          if (pickedRange != null) {
-                            setState(() {
-                              selectedRange.value = pickedRange;
-                              startController.text =
-                                  pickedRange.start.toIso8601String().substring(0, 10);
-                              endController.text =
-                                  pickedRange.end.toIso8601String().substring(0, 10);
-                            });
+                          if (date != null) {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (time != null) {
+                              final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute).toLocal();
+                              setState(() {
+                                startController.text = dateTime.toIso8601String();
+                              });
+                            }
                           }
                         },
                       ),
                       TextField(
                         controller: endController,
-                        decoration: InputDecoration(labelText: 'End Date'),
+                        decoration: InputDecoration(labelText: 'End Date and Time'),
                         readOnly: true,
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: focusedDay.value,
+                            firstDate: focusedDay.value,
+                            lastDate: DateTime(2100),
+                          );
+                          if (date != null) {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (time != null) {
+                              final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute).toLocal();
+                              setState(() {
+                                endController.text = dateTime.toIso8601String();
+                              });
+                            }
+                          }
+                        },
                       ),
                       TextField(
                         controller: typeController,
@@ -213,41 +239,29 @@ class CalendarScreen extends HookConsumerWidget {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: () => Navigator.of(context).pop(),
                     child: Text('Cancel'),
                   ),
                   ElevatedButton(
-                    onPressed: isAdding
-                        ? null
-                        : () async {
-                      if (selectedRange.value != null && userId.value != null) {
-                        setState(() {
-                          isAdding = true;
-                        });
-                        final holidayData = {
-                          "Day": selectedRange.value!.start.toIso8601String().substring(0, 10),
-                          "end": selectedRange.value!.end.toIso8601String().substring(0, 10),
-                          "start": selectedRange.value!.start.toIso8601String().substring(0, 10),
-                          "type": typeController.text,
-                          "title": titleController.text,
-                          "markedBy": userId.value,
-                        };
-                        await addHoliday(holidayData);
-                        setState(() {
-                          isAdding = false;
-                        });
-                        Navigator.of(context).pop();
-                      }
+                    onPressed: isAdding ? null : () async {
+                      setState(() {
+                        isAdding = true;
+                      });
+                      final holidayData = {
+                        "Day": DateTime.parse(startController.text).toIso8601String().substring(0, 10), // Only date part for "Day" key
+                        "start": startController.text, // ISO string with local time
+                        "end": endController.text, // ISO string with local time
+                        "type": typeController.text,
+                        "title": titleController.text,
+                        "markedBy": userId.value,
+                      };
+                      await addHoliday(holidayData);
+                      setState(() {
+                        isAdding = false;
+                      });
+                      Navigator.of(context).pop();
                     },
-                    child: isAdding
-                        ? SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : Text('Add'),
+                    child: isAdding ? CircularProgressIndicator() : Text('Add'),
                   ),
                 ],
               );
@@ -256,6 +270,8 @@ class CalendarScreen extends HookConsumerWidget {
         },
       );
     }
+
+
 
     void _showDeleteConfirmationDialog(String day, BuildContext context, StateSetter parentSetState) {
       showDialog(
@@ -308,10 +324,16 @@ class CalendarScreen extends HookConsumerWidget {
       showDialog(
         context: context,
         builder: (context) {
-          final startController = TextEditingController(text: holiday['start'].substring(0, 10));
-          final endController = TextEditingController(text: holiday['end'].substring(0, 10));
+          final startController = TextEditingController();
+          final endController = TextEditingController();
           final titleController = TextEditingController(text: holiday['title']);
           final typeController = TextEditingController(text: holiday['type']);
+
+          // Pre-fill the start and end datetime fields
+          DateTime startDateTime = DateTime.parse(holiday['start']).toLocal();
+          DateTime endDateTime = DateTime.parse(holiday['end']).toLocal();
+          startController.text = startDateTime.toIso8601String();
+          endController.text = endDateTime.toIso8601String();
 
           return StatefulBuilder(
             builder: (context, setState) {
@@ -326,30 +348,53 @@ class CalendarScreen extends HookConsumerWidget {
                     children: [
                       TextField(
                         controller: startController,
-                        decoration: InputDecoration(labelText: 'Start Date'),
+                        decoration: InputDecoration(labelText: 'Start Date and Time'),
                         readOnly: true,
                         onTap: () async {
-                          DateTimeRange? pickedRange = await showDateRangePicker(
+                          final date = await showDatePicker(
                             context: context,
+                            initialDate: startDateTime,
                             firstDate: DateTime(2020),
                             lastDate: DateTime(2030),
-                            initialDateRange: DateTimeRange(
-                              start: DateTime.parse(holiday['start']),
-                              end: DateTime.parse(holiday['end']),
-                            ),
                           );
-                          if (pickedRange != null) {
-                            setState(() {
-                              startController.text = pickedRange.start.toIso8601String().substring(0, 10);
-                              endController.text = pickedRange.end.toIso8601String().substring(0, 10);
-                            });
+                          if (date != null) {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(startDateTime),
+                            );
+                            if (time != null) {
+                              final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                              setState(() {
+                                startController.text = dateTime.toIso8601String();
+                              });
+                            }
                           }
                         },
                       ),
                       TextField(
                         controller: endController,
-                        decoration: InputDecoration(labelText: 'End Date'),
+                        decoration: InputDecoration(labelText: 'End Date and Time'),
                         readOnly: true,
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: endDateTime,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (date != null) {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(endDateTime),
+                            );
+                            if (time != null) {
+                              final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                              setState(() {
+                                endController.text = dateTime.toIso8601String();
+                              });
+                            }
+                          }
+                        },
                       ),
                       TextField(
                         controller: titleController,
@@ -368,46 +413,32 @@ class CalendarScreen extends HookConsumerWidget {
                     child: Text('Cancel'),
                   ),
                   ElevatedButton(
-                    onPressed: isUpdating
-                        ? null
-                        : () async {
-                      if (startController.text.isNotEmpty && endController.text.isNotEmpty && userId.value != null) {
-                        setState(() {
-                          isUpdating = true;
-                        });
-                        final holidayData = {
-                          "start": startController.text,
-                          "end": endController.text,
-                          "title": titleController.text,
-                          "type": typeController.text,
-                          "markedBy": holiday['markedBy'], // Keep the original marker
-                        };
-                        await editHoliday(holiday['start'], holidayData);
-                        setState(() {
-                          isUpdating = false;
-                        });
-                        Navigator.of(context).pop();
-                      }
+                    onPressed: isUpdating ? null : () async {
+                      setState(() {
+                        isUpdating = true;
+                      });
+                      final holidayData = {
+                        "start": startController.text,
+                        "end": endController.text,
+                        "title": titleController.text,
+                        "type": typeController.text,
+                        "markedBy": holiday['markedBy'],  // Keep the original marker
+                      };
+                      await editHoliday(startController.text.substring(0,10), holidayData);
+                      setState(() {
+                        isUpdating = false;
+                      });
+                      Navigator.of(context).pop();
                     },
-                    child: isUpdating
-                        ? SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : Text('Update'),
+                    child: isUpdating ? CircularProgressIndicator() : Text('Update'),
                   ),
                   TextButton(
-                    onPressed: isDeleting
-                        ? null
-                        : () => _showDeleteConfirmationDialog(holiday['start'], context, setState),
-                    child: isDeleting
-                        ? SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : Text('Delete', style: TextStyle(color: Colors.red)),
+                    onPressed: isDeleting ? null : () {
+                      isDeleting = true;
+                      _showDeleteConfirmationDialog(holiday['start'].substring(0,10), context, setState);
+                      isDeleting = false;
+                    },
+                    child: Text('Delete', style: TextStyle(color: Colors.red)),
                   ),
                 ],
               );
@@ -417,8 +448,98 @@ class CalendarScreen extends HookConsumerWidget {
       );
     }
 
+
     List<dynamic> _getEventsForDay(DateTime day) {
       return holidays.value[DateTime.utc(day.year, day.month, day.day)] ?? [];
+    }
+
+    Widget _buildDayEvents(BuildContext context, DateTime day) {
+      var events = _getEventsForDay(day);
+      if (events.isEmpty) {
+        // Display an image when there are no events
+        return Center(
+          child: Image.asset(
+            'assets/images/noEvents.png',
+            fit: BoxFit.cover,
+            width: 200,
+            height: 200,
+          ),
+        );
+      } else {
+        // Display events with consolidated date and time information
+        return ListView(
+          children: events.map((event) {
+            // Convert string date-time to DateTime object for formatting
+            DateTime startDateTime = DateTime.parse(event['start']).toLocal();
+            DateTime endDateTime = DateTime.parse(event['end']).toLocal();
+
+            // Format date and time to a readable string
+            String startFormatted = "${startDateTime.toIso8601String().substring(0, 10)} at ${startDateTime.toIso8601String().substring(11, 16)}";
+            String endFormatted = "${endDateTime.toIso8601String().substring(0, 10)} at ${endDateTime.toIso8601String().substring(11, 16)}";
+
+            return Container(
+
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                color: Colors.white54,
+              ),
+              child:ListTile(
+                title: Text(
+                  event['title'],
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.buttonColor,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Type: ${event['type']}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today, size: 20, color: Colors.green),
+                        SizedBox(width: 4),
+                        Text(
+                          "Starts: $startFormatted",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today, size: 20, color: Colors.red),
+                        SizedBox(width: 4),
+                        Text(
+                          "Ends: $endFormatted",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                trailing: Icon(
+                  Icons.event,
+                  color: AppColors.primaryColor,
+                ),
+                onTap: isHr ? () => _showEditHolidayDialog(event) : null,
+              )
+            );
+          }).toList(),
+        );
+      }
     }
 
 
@@ -430,7 +551,7 @@ class CalendarScreen extends HookConsumerWidget {
         elevation: 0,
         centerTitle: false,
         title: Text(
-          'Company Calendar',
+          'Holiday Calendar',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
@@ -440,7 +561,7 @@ class CalendarScreen extends HookConsumerWidget {
           child: Center(
             child: Container(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height * 0.65,
+              height: MediaQuery.of(context).size.height * 0.8,
               decoration: BoxDecoration(
                 color: Colors.indigoAccent.withOpacity(0.25),
                 borderRadius: BorderRadius.circular(32),
@@ -460,6 +581,7 @@ class CalendarScreen extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        SizedBox(height: 48,),
                         Center(
                           child: TableCalendar(
                             focusedDay: focusedDay.value,
@@ -523,34 +645,17 @@ class CalendarScreen extends HookConsumerWidget {
                             ),
                           ),
                         ),
+                        SizedBox(height: 48,),
                         if (selectedDate.value != null)
-                          ..._getEventsForDay(selectedDate.value!).map((event) => ListTile(
-                            title: Text(
-                              event['title'],
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.buttonColor,
-                              ),
-                            ),
-                            subtitle: Text(
-                              event['type'],
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.red,
-                              ),
-                            ),
-                            trailing: Icon(
-                              Icons.event,
-                              color: AppColors.primaryColor,
-                            ),
-                            onTap: isHr ? () => _showEditHolidayDialog(event) : null,
-                          )),
+                          Expanded(
+                            child: _buildDayEvents(context, selectedDate.value!),
+                          ),
                       ],
                     ),
                   ),
                   if (isLoading.value)
                     Center(child: CircularProgressIndicator()),
+
                 ],
               ),
             ),
@@ -608,6 +713,8 @@ class CalendarScreen extends HookConsumerWidget {
       ),
     );
   }
+
+
 
   Widget _buildEventsMarker(DateTime date, List events) {
     return Container(
