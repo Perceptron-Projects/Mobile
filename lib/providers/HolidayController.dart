@@ -48,7 +48,7 @@ class HolidayController {
   Future<void> editHoliday(String day, Map<String, dynamic> holidayData) async {
     final token = await getAuthToken();
 
-    final response = await http.put(
+    final response = await http.patch(
       Uri.parse('${ApiClient.baseUrl}/api/calendar/holidays/$day'),
       headers: {
         'Content-Type': 'application/json',

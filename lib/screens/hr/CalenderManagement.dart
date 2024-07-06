@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/HolidayController.dart';
 import 'package:ams/providers/AuthController.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../components/CustomWidget.dart';
@@ -333,6 +334,7 @@ class CalendarScreen extends HookConsumerWidget {
           DateTime startDateTime = DateTime.parse(holiday['start']).toLocal();
           DateTime endDateTime = DateTime.parse(holiday['end']).toLocal();
           startController.text = startDateTime.toIso8601String();
+          final day=startController.text.substring(0,10);
           endController.text = endDateTime.toIso8601String();
 
           return StatefulBuilder(
@@ -424,7 +426,7 @@ class CalendarScreen extends HookConsumerWidget {
                         "type": typeController.text,
                         "markedBy": holiday['markedBy'],  // Keep the original marker
                       };
-                      await editHoliday(startController.text.substring(0,10), holidayData);
+                      await editHoliday(day, holidayData);
                       setState(() {
                         isUpdating = false;
                       });
