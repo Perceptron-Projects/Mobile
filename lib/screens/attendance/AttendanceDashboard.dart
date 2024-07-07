@@ -14,6 +14,11 @@ import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/providers/authController.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../providers/ProfileController.dart';
+import '../hr/CalenderManagement.dart';
+import '../insightPanel/InsightPanel.dart';
+import '../welcome/Welcome.dart';
+
 final authControllerProvider = Provider((ref) => AuthController());
 
 class AttendanceDashboardScreen extends ConsumerWidget {
@@ -120,8 +125,7 @@ class AttendanceDashboardScreen extends ConsumerWidget {
             ),
             bottomNavigationBar: CustomBottomNavigationBar(
               currentIndex: 0, // Adjust the currentIndex based on your logic
-              onTap: (index) {
-                // Handle the tap event, navigate to different screens
+              onTap: (index) async {
                 if (index == 0) {
                   Navigator.push(
                     context,
@@ -132,8 +136,30 @@ class AttendanceDashboardScreen extends ConsumerWidget {
                     context,
                     MaterialPageRoute(builder: (context) => ProfileScreen()),
                   );
+                } else if (index == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CalendarScreen()),
+                  );
+                }
+                else if (index == 3) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InsightsScreen()),
+                  );
+                }
+                else if (index == 4) {
+                  // Handle logout
+                  await ref.read(profileControllerProvider).logout();
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                        (Route<dynamic> route) => false,
+                  );
                 }
               },
+              selectedItemColor: AppColors.buttonColor,
+              unselectedItemColor: Colors.grey,
             ),
           );
         }

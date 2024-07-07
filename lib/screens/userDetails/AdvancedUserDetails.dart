@@ -16,7 +16,7 @@ final workedHoursProvider = FutureProvider.family<Map<String, dynamic>, String>(
   final insightsController = ref.watch(insightsControllerProvider);
   DateTime startDate = insightsController.getStartOfWeek(DateTime.now());
   DateTime endDate = startDate.add(Duration(days: 5));
-  return insightsController.fetchAttendanceData(startDate, endDate);
+  return insightsController.fetchAttendanceDataForUser(startDate, endDate, userId);
 });
 
 final leaveDataProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, userId) async {
@@ -36,9 +36,11 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    final userDetailsAsyncValue = ref.watch(userDetailsProvider(userId));
     final workedHoursAsyncValue = ref.watch(workedHoursProvider(userId));
     final leaveDataAsyncValue = ref.watch(leaveDataProvider(userId));
-    final userDetailsAsyncValue = ref.watch(userDetailsProvider(userId));
+
 
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +114,7 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
                               Icon(Icons.cake, color: Colors.grey),
                               SizedBox(width: 8),
                               Text(
-                                userDetails['bithday']??'N/A',
+                                userDetails['birthday']??'N/A',
                                 style: TextStyle(fontSize: 16, color: Colors.grey),
                               ),
                             ],
@@ -122,7 +124,7 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
                               Icon(Icons.calendar_today, color: Colors.grey),
                               SizedBox(width: 8),
                               Text(
-                                userDetails['joinday']??'N/A',
+                                'joined on '+userDetails['joinday']??'N/A',
                                 style: TextStyle(fontSize: 16, color: Colors.grey),
                               ),
                             ],

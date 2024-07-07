@@ -10,6 +10,11 @@ import 'package:ams/screens/home/Home.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/providers/authController.dart';
 
+import '../../providers/ProfileController.dart';
+import '../hr/CalenderManagement.dart';
+import '../insightPanel/InsightPanel.dart';
+import '../welcome/Welcome.dart';
+
 final authControllerProvider = Provider((ref) => AuthController());
 
 class TeamDashboardScreen extends HookConsumerWidget {
@@ -83,8 +88,7 @@ class TeamDashboardScreen extends HookConsumerWidget {
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: 0, // Adjust the currentIndex based on your logic
-        onTap: (index) {
-          // Handle the tap event, navigate to different screens
+        onTap: (index) async {
           if (index == 0) {
             Navigator.push(
               context,
@@ -95,8 +99,30 @@ class TeamDashboardScreen extends HookConsumerWidget {
               context,
               MaterialPageRoute(builder: (context) => ProfileScreen()),
             );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
+            );
+          }
+          else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InsightsScreen()),
+            );
+          }
+          else if (index == 4) {
+            // Handle logout
+            await ref.read(profileControllerProvider).logout();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                  (Route<dynamic> route) => false,
+            );
           }
         },
+        selectedItemColor: AppColors.buttonColor,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }

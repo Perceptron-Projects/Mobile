@@ -455,6 +455,7 @@ class CalendarScreen extends HookConsumerWidget {
       return holidays.value[DateTime.utc(day.year, day.month, day.day)] ?? [];
     }
 
+
     Widget _buildDayEvents(BuildContext context, DateTime day) {
       var events = _getEventsForDay(day);
       if (events.isEmpty) {
@@ -493,44 +494,54 @@ class CalendarScreen extends HookConsumerWidget {
                     fontWeight: FontWeight.bold,
                     color: AppColors.buttonColor,
                   ),
+                  overflow: TextOverflow.ellipsis,  // Prevents title overflow
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Type: ${event['type']}",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.red,
+                subtitle: SingleChildScrollView( // Makes the subtitle scrollable if it overflows
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Type: ${event['type']}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.red,
+                        ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.calendar_today, size: 20, color: Colors.green),
-                        SizedBox(width: 4),
-                        Text(
-                          "Starts: $startFormatted",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, size: 20, color: Colors.green),
+                          SizedBox(width: 4),
+                          Flexible( // Wraps text in a flexible widget to prevent overflow
+                            child: Text(
+                              "Starts: $startFormatted",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.calendar_today, size: 20, color: Colors.red),
-                        SizedBox(width: 4),
-                        Text(
-                          "Ends: $endFormatted",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, size: 20, color: Colors.red),
+                          SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              "Ends: $endFormatted",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 trailing: Icon(
                   Icons.event,
@@ -543,9 +554,6 @@ class CalendarScreen extends HookConsumerWidget {
         );
       }
     }
-
-
-
 
     return Scaffold(
       appBar: AppBar(

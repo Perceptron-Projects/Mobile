@@ -156,7 +156,7 @@ class ProfileScreen extends HookConsumerWidget {
                 label: 'Joined Date',
                 value: joinedDate,
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 48),
               ElevatedButton(
                 onPressed: handleLogout,
                 child: Text('Logout'),
