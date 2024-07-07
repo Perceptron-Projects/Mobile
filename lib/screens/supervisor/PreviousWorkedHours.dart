@@ -26,6 +26,8 @@ class PreviousWorkedHoursScreen extends HookConsumerWidget {
     final insightsController = ref.read(insightsControllerProvider);
     final workedHoursAsyncValue = useState<AsyncValue<Map<String, dynamic>>>(
         const AsyncLoading());
+    DateTime nextWeekStart = insightsController.getStartOfWeek(currentDate.value).add(Duration(days: 7));
+
 
     void fetchWorkedHours(DateTime date) {
       final startDate = insightsController.getStartOfWeek(date);
@@ -76,7 +78,7 @@ class PreviousWorkedHoursScreen extends HookConsumerWidget {
                     ),
                     IconButton(
                       icon: Icon(Icons.arrow_forward),
-                      onPressed: () {
+                      onPressed: nextWeekStart.isAfter(DateTime.now()) ? null : () {
                         currentDate.value = currentDate.value.add(Duration(days: 7));
                       },
                     ),
