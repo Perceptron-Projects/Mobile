@@ -12,7 +12,6 @@ import 'package:ams/screens/profile/Profile.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/screens/attendance/AttendanceDashboard.dart';
 import 'package:ams/screens/teams/TeamsDashboard.dart';
-import 'package:ams/screens/teams/ViewTeams.dart';
 import 'package:ams/screens/leave/LeaveDashboard.dart';
 import 'package:ams/screens/hr/CalenderManagement.dart';
 import 'package:ams/screens/userDetails/AdvancedUserDetails.dart';
@@ -186,7 +185,7 @@ class HomePageScreen extends HookConsumerWidget {
                         buildNavButton(
                           'Attendance',
                           Icons.access_time,
-                          AttendanceDashboardScreen(companyId: companyId.value ?? 'e3580212-0428-45f1-bc07-69fe179dabdf'),
+                          AttendanceDashboardScreen(companyId: companyId.value ?? ''),
                           navigateToScreen,
                         ),
                         buildNavButton(
@@ -205,14 +204,14 @@ class HomePageScreen extends HookConsumerWidget {
                           buildNavButton(
                             'Accounts',
                             Icons.account_circle,
-                            ViewAccountScreen(companyId: companyId.value ?? 'e3580212-0428-45f1-bc07-69fe179dabdf'),
+                            ViewAccountScreen(companyId: companyId.value ?? ''),
                             navigateToScreen,
                           )
                         else
                           buildNavButton(
                             'Account',
                             Icons.account_circle,
-                            AdvancedUserDetailsScreen(userId: userId.value ?? ''), // Replace with the actual current user ID
+                            AdvancedUserDetailsScreen(userId: userId.value ?? ''),
                             navigateToScreen,
                           ),
                       ],

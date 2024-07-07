@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/providers/teamController.dart';
 
@@ -16,6 +15,7 @@ class GeneralUserDetailsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userDetailsAsyncValue = ref.watch(userDetailsProvider(userId));
+    final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +36,7 @@ class GeneralUserDetailsScreen extends HookConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage(userDetails['imageUrl'] ?? 'https://example.com/profile.jpg'),
+                    backgroundImage: NetworkImage(userDetails['imageUrl'] ?? '$defaultProfileImageUrl'),
                     backgroundColor: Colors.grey,
                   ),
                   SizedBox(width: 16),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/appColors.dart';
-import 'package:ams/components/CustomWidget.dart';
 import 'package:intl/intl.dart';
 import 'package:ams/providers/attendanceController.dart';
 
@@ -12,15 +11,17 @@ class ViewWFHRequestsScreen extends HookConsumerWidget {
     final attendanceController = ref.read(attendanceControllerProvider);
     final workFromHomeRequests = useState<List<Map<String, dynamic>>>([]);
 
-
-
-    // Calculate the start and end of the current week
     final DateTime now = DateTime.now();
-    final DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final DateTime endOfWeek = now.add(Duration(days: DateTime.daysPerWeek - now.weekday));
+    // Start of the current month (year, month, 1)
+    final DateTime startOfMonth = DateTime(now.year, now.month, 1);
+    // Last day of the current month (year, month + 1, 0 gives last day of current month)
+    final DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
 
-    final startDate = useState<DateTime>(startOfWeek);
-    final endDate = useState<DateTime>(endOfWeek);
+    final startDate = useState<DateTime>(startOfMonth);
+    final endDate = useState<DateTime>(endOfMonth);
+
+    // final startDate = useState<DateTime>(startOfWeek);
+    // final endDate = useState<DateTime>(endOfWeek);
     final isLoading = useState<bool>(true);
 
     Future<void> fetchWorkFromHomeRequests() async {

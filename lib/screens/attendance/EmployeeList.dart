@@ -101,7 +101,8 @@ class EmployeeListScreen extends HookConsumerWidget {
               itemCount: filteredEmployees.value.length,
               itemBuilder: (context, index) {
                 final employee = filteredEmployees.value[index];
-                final profileImage = employee['imageUrl'] ?? 'https://via.placeholder.com/150'; // Default image
+                final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
+                final profileImage = employee['imageUrl'] ?? '$defaultProfileImageUrl'; // Default image
                 final firstName = employee['firstName'] ?? 'N/A';
                 final lastName = employee['lastName'] ?? 'N/A';
                 final userId = employee['userId'];

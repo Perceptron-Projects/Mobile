@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/providers/HolidayController.dart';
 import 'package:ams/providers/AuthController.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../components/CustomWidget.dart';
@@ -165,7 +164,7 @@ class CalendarScreen extends HookConsumerWidget {
           final startController = TextEditingController();
           final endController = TextEditingController();
           final titleController = TextEditingController();
-          final typeController = TextEditingController();
+          String? type;
 
           return StatefulBuilder(
             builder: (context, setState) {
@@ -227,9 +226,21 @@ class CalendarScreen extends HookConsumerWidget {
                           }
                         },
                       ),
-                      TextField(
-                        controller: typeController,
+                      DropdownButtonFormField<String>(
+                        value: type,
                         decoration: InputDecoration(labelText: 'Holiday Type'),
+                        onChanged: (newValue) {
+                          setState(() {
+                            type = newValue;
+                          });
+                        },
+                        items: <String>['Business', 'Public']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                       ),
                       TextField(
                         controller: titleController,
@@ -252,7 +263,7 @@ class CalendarScreen extends HookConsumerWidget {
                         "Day": DateTime.parse(startController.text).toIso8601String().substring(0, 10), // Only date part for "Day" key
                         "start": startController.text, // ISO string with local time
                         "end": endController.text, // ISO string with local time
-                        "type": typeController.text,
+                        "type": type,
                         "title": titleController.text,
                         "markedBy": userId.value,
                       };
@@ -328,7 +339,7 @@ class CalendarScreen extends HookConsumerWidget {
           final startController = TextEditingController();
           final endController = TextEditingController();
           final titleController = TextEditingController(text: holiday['title']);
-          final typeController = TextEditingController(text: holiday['type']);
+          String? type = holiday['type'];
 
           // Pre-fill the start and end datetime fields
           DateTime startDateTime = DateTime.parse(holiday['start']).toLocal();
@@ -402,9 +413,21 @@ class CalendarScreen extends HookConsumerWidget {
                         controller: titleController,
                         decoration: InputDecoration(labelText: 'Title'),
                       ),
-                      TextField(
-                        controller: typeController,
+                      DropdownButtonFormField<String>(
+                        value: type,
                         decoration: InputDecoration(labelText: 'Holiday Type'),
+                        onChanged: (newValue) {
+                          setState(() {
+                            type = newValue;
+                          });
+                        },
+                        items: <String>['Business', 'Public']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),
@@ -423,7 +446,7 @@ class CalendarScreen extends HookConsumerWidget {
                         "start": startController.text,
                         "end": endController.text,
                         "title": titleController.text,
-                        "type": typeController.text,
+                        "type": type,
                         "markedBy": holiday['markedBy'],  // Keep the original marker
                       };
                       await editHoliday(day, holidayData);

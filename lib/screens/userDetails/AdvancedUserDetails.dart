@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
+
 
 import 'package:ams/providers/leaveController.dart';
 import 'package:ams/providers/InsightsController.dart';
@@ -40,7 +38,7 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
     final userDetailsAsyncValue = ref.watch(userDetailsProvider(userId));
     final workedHoursAsyncValue = ref.watch(workedHoursProvider(userId));
     final leaveDataAsyncValue = ref.watch(leaveDataProvider(userId));
-
+    final defaultProfileImageUrl = 'assets/images/defaultProfileImage.jpg';
 
     return Scaffold(
       appBar: AppBar(
@@ -67,69 +65,87 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
                     children: [
                       CircleAvatar(
                         radius: 50,
-                        backgroundImage: NetworkImage(userDetails['imageUrl'] ?? 'https://example.com/profile.jpg'),
+                        backgroundImage: NetworkImage(userDetails['imageUrl'] ?? '$defaultProfileImageUrl'),
                         backgroundColor: Colors.grey,
                       ),
                       SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${userDetails['firstName']} ${userDetails['lastName']}',
-                            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.perm_identity, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                userDetails['userId'],
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.phone, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                userDetails['contactNo'],
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(Icons.email, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                userDetails['email'],
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.cake, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                userDetails['birthday']??'N/A',
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                'joined on '+userDetails['joinday']??'N/A',
-                                style: TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Expanded( // Wrap the Column in an Expanded widget
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${userDetails['firstName']} ${userDetails['lastName']}',
+                              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis, // Prevents text from overflowing
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.perm_identity, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Expanded( // Make Text widget flexible
+                                  child: Text(
+                                    userDetails['userId'],
+                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                    overflow: TextOverflow.ellipsis, // Use ellipsis for overflow
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.phone, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Flexible( // Another flexible widget
+                                  child: Text(
+                                    userDetails['contactNo'],
+                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.email, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Flexible( // And another one
+                                  child: Text(
+                                    userDetails['email'],
+                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.cake, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    userDetails['birthday'] ?? 'N/A',
+                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.calendar_today, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'joined on ${userDetails['joinday'] ?? 'N/A'}',
+                                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -138,7 +154,7 @@ class AdvancedUserDetailsScreen extends HookConsumerWidget {
                   SizedBox(height: 8),
                   buildGeneralInfo(workedHours, leaveData),
                   SizedBox(height: 24),
-                  Text('Worked Hours - Weekly Basis', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Worked Hours - Current Week', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 24),
                   buildBarChart(workedHours),
                   SizedBox(height: 24),

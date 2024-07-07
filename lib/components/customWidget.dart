@@ -758,7 +758,6 @@ class CustomFormField extends StatelessWidget {
 }
 
 Widget buildBarChart(Map<String, dynamic> workedHours) {
-
   print(workedHours);
   // Determine the maximum value from the data to set as maxY
   double maxY = [

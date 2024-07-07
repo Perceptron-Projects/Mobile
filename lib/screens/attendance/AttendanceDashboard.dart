@@ -1,6 +1,5 @@
 import 'package:ams/screens/attendance/EmployeeList.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ams/constants/AppColors.dart';
 import 'package:ams/components/Background.dart';
@@ -12,7 +11,6 @@ import 'package:ams/screens/profile/Profile.dart';
 import 'package:ams/screens/home/Home.dart';
 import 'package:ams/components/CustomWidget.dart';
 import 'package:ams/providers/authController.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../providers/ProfileController.dart';
 import '../hr/CalenderManagement.dart';
@@ -105,7 +103,7 @@ class AttendanceDashboardScreen extends ConsumerWidget {
                       SizedBox(height: 30),
                       if (userRoles.contains('hr') || userRoles.contains('supervisor'))
                         buildNavButton(
-                          ' Work From Home Requests',
+                          ' Review WFH Requests',
                           Icons.person,
                           SupervisorWFHDashboardScreen(),
                           navigateToScreen,
@@ -115,7 +113,7 @@ class AttendanceDashboardScreen extends ConsumerWidget {
                         buildNavButton(
                           ' Attendance of employees',
                           Icons.record_voice_over,
-                          EmployeeListScreen(companyId: companyId),
+                          EmployeeListScreen(companyId: companyId??''),
                           navigateToScreen,
                         ),
                     ],

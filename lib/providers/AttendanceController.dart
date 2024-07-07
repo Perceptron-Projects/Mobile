@@ -165,7 +165,6 @@ class AttendanceController {
 
     List<Map<String, dynamic>> attendanceRecords = List<Map<String, dynamic>>.from(data['attendanceRecords']);
 
-    // Filter out any records where 'date' is null or not a string
     attendanceRecords = attendanceRecords.where((record) => record['date'] != null && record['date'] is String).toList();
 
     // Ensure all bool fields are non-null
@@ -349,7 +348,6 @@ class AttendanceController {
 
     print('Work from home request status updated successfully: ${response.body}');
   }
-
 
 
 }
